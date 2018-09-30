@@ -12,6 +12,7 @@ YouTubeリンク or QRコード, URLを掲載予定です
 
 ## Requirement
 Python 3.6
+Line messaging API
 
 ## Usage
 テストはngrokを用いた.
@@ -21,8 +22,16 @@ $ ngrok 5000
 $ main.py 5000
 ```
 
-<!-- ## Install -->
+## Future work
+- LINE BOT AWARDへの応募
+  - 画像1毎
+  - アイコン作成
+  - 各種情報
+- リッチUIの利用
+  - Flake UI？の利用
 
+
+<!-- ## Install -->
 
 ## Contribution
 なにかあればIssuesまで
@@ -34,4 +43,4 @@ $ main.py 5000
 
 ## Author
 
-[mikanbox](https://github.com/)
+[mikanbox](https://github.com/mikanbox)
