@@ -4,13 +4,28 @@
 
 URL
 - [LINE developers](https://at.line.me/jp/)
-- 
+
+- LINE DevのWebhookに設定するURL
+  - [heroku](https://linebot-ryotei-kun.herokuapp.com:443/callback)
+  - [hgrok](ターミナルに出てくるやつ)
+
+
 
 ### herokuについて
 - [参考資料](https://b-side.work/2017/02/heroku-and-git/)
-
+- [参考資料2](https://qiita.com/hirosat/items/39cd6ba954a451bc01b8)
 - リモートリポジトリのmasterにgit pushすることで、デプロイを実行
+- heroku logs –a linebot-ryotei-kun --tail サーバー側を監視(-aでエラー)
+- heroku logs --tail サーバー側を関し
+- pip freezeを使って依存ライブラリをrequirements.txtに書き出し
+- Procfileに起動Commandを記入
 
 ### ngrokについて
 - ローカル環境をトンネリングしてグローバルIPを割り当て
+
+
+## 履歴
+- Heroku初デプロイ
+- heroku log に　error message "No web processes running"
+
 
