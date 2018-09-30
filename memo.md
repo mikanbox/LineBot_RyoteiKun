@@ -14,11 +14,13 @@ URL
 ### herokuについて
 - [参考資料](https://b-side.work/2017/02/heroku-and-git/)
 - [参考資料2](https://qiita.com/hirosat/items/39cd6ba954a451bc01b8)
+- [参考資料3](https://qiita.com/sqrtxx/items/2ae41d5685e07c16eda5)
 - リモートリポジトリのmasterにgit pushすることで、デプロイを実行
 - heroku logs –a linebot-ryotei-kun --tail サーバー側を監視(-aでエラー)
 - heroku logs --tail サーバー側を関し
 - pip freezeを使って依存ライブラリをrequirements.txtに書き出し
 - Procfileに起動Commandを記入
+
 
 ### ngrokについて
 - ローカル環境をトンネリングしてグローバルIPを割り当て
