@@ -30,7 +30,7 @@ $ main.py 5000
 
 ## Licence
 
-[MIT](https://github.com/mikanbox/LineBot_Ryotei_Kun/MIT-LICENSE.txt)
+[MIT](https://github.com/mikanbox/LineBot_Ryotei_Kun/blob/master/MIT-LICENSE.txt)
 
 ## Author
 
