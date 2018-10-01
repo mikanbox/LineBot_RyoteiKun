@@ -161,8 +161,7 @@ def calcPath(location, e, c, time, stayTime=3600):
     for i in location:
         y[i] = pulp.LpVariable("y({:})".format(i), 0, 1, pulp.LpInteger)
 
-    problem += pulp.lpSum(c[i, j] x[i, j]
-                          for i in location for j in location), "TotalCost"
+    problem += pulp.lpSum(c[i, j] * x[i, j] for i in location for j in location), "TotalCost"
 
     problem += sum(x[i, j] for i in location for j in location) + \
         sum(y[i] * stayTime for i in location) <= time, "Constraint_leq"
