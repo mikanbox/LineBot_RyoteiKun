@@ -419,48 +419,11 @@ def handle_message(event):
                 event.reply_token,
                 TextSendMessage(text='行きたい場所を教えてください'))
 
-    # if event.message.text == "開始時間":
-    #     date_picker = TemplateSendMessage(
-    #         alt_text='開始時間を設定',
-    #         template=ButtonsTemplate(
-    #             text='開始時間を設定',
-    #             title='hh--mm',
-    #             actions=[
-    #                 DatetimePickerTemplateAction(
-    #                     label='設定',
-    #                     data='action=buy&itemid=1',
-    #                     mode='time'
-    #                 )
-    #             ]
-    #         )
-    #     )
-    #     line_bot_api.reply_message(
-    #         event.reply_token,
-    #         date_picker
-    #     )
-    # elif event.message.text == "終了時間":
-    #     data_picker = TemplateSendMessage(
-    #         alt_text='終了時間を設定',
-    #         template=ButtonsTemplate(
-    #             text='終了時間を設定',
-    #             title='YYYY-MM-dd',
-    #             actions=[
-    #                 DatetimePickerTemplateAction(
-    #                     label='設定',
-    #                     data='action=buy&itemid=1',
-    #                     mode='date',
-    #                     initial='2017-04-01',
-    #                     min='2017-04-01',
-    #                     max='2099-12-31'
-    #                 )
-    #             ]
-    #         )
-    #     )
-    #     line_bot_api.reply_message(
-    #         event.reply_token,
-    #         TextSendMessage(text=date_picker)
-    #     )
 
 
+# if __name__ == "__main__":
+    # app.run(host='localhost', port=3000)
 if __name__ == "__main__":
-    app.run(host='localhost', port=3000)
+    port = int(os.getenv("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
+
