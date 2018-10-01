@@ -12,6 +12,7 @@ URL
 
 
 ### herokuについて
+### log1
 - [参考資料](https://b-side.work/2017/02/heroku-and-git/)
 - [参考資料2](https://qiita.com/hirosat/items/39cd6ba954a451bc01b8)
 - [参考資料3](https://qiita.com/sqrtxx/items/2ae41d5685e07c16eda5)
@@ -26,6 +27,12 @@ URL
 - heroku config:set LineMessageAPIChannelAccessToken=" key " --app linebot-ryotei-kun
 - heroku config:set LineMessageAPIChannelSecret=" key " --app linebot-ryotei-kun
 - requirements.txtにgnuicornを追加したらビルド通った
+- demo.pyが成功
+
+### log2
+- Procfileをmain.pyに
+- syntax errorが出てる
+
 
 
 ### ngrokについて

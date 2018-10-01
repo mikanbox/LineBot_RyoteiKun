@@ -45,9 +45,8 @@ class Journey:
     PointValue = {}
     MaxTravelTime = 60 * 60 * 1
     StayTime = 3600
-    StartTime =""
+    StartTime = ""
     EndTime = ""
-
 
 
 # 位置座標クラス
@@ -131,8 +130,6 @@ def calc2PointTime(fromPlaceName, toPlaceName):
     dest = MapCoordinate(location["lat"], location["lng"])
     route = MapRoute(src, dest, MapRoute.mode_transit)
 
-
-
     direction_json = getGoogleMapDirection(route)
     duringtime = direction_json['routes'][0]['legs'][
         0]['duration']["value"]  # これで２点間を車移動したときの秒数が入る
@@ -194,16 +191,16 @@ def calcPath(location, e, c, time, stayTime=3600):
                                                  for i in location for j in location) == 1, "Constraint_eq2"
 
     status = problem.solve()
-    print ("Status", pulp.LpStatus[status])
-    print (problem)
-    print ("Result")
+    print("Status", pulp.LpStatus[status])
+    print(problem)
+    print("Result")
 
     for i in Journey.location:
         for j in Journey.location:
-            print (x[i,j], x[i,j].value())
+            print(x[i, j], x[i, j].value())
 
     for i in Journey.location:
-        print (y[i], y[i].value())
+        print(y[i], y[i].value())
 
     return x, y
 
@@ -214,9 +211,8 @@ def CreateResult(route, point):
             print(i)
     for i in Journey.location:
         for j in Journey.location:
-            if (route[i,j].value() == 1):
+            if (route[i, j].value() == 1):
                 print(i + "  to  " + j)
-
 
     pointCount = 0
     # for i in Journey.location:
@@ -271,7 +267,7 @@ def CreateResult(route, point):
     message.append(Journey.StartTime)
     mes = ""
     for i in range(len(jouneylist)):
-        mes += jouneylist[i] + "  滞在:" + str(Journey.StayTime/60) + "分くらい\n"
+        mes += jouneylist[i] + "  滞在:" + str(Journey.StayTime / 60) + "分くらい\n"
         if (i < len(jouneylist) - 1):
             mes += " ↓  移動:" + str(int(jouneyTime[i] / 60)) + "分くらい\n"
     message.append(mes)
@@ -287,7 +283,6 @@ def calcFirstJourneyData(event):
     for i in Journey.location:
         Journey.locationValue[i] = 0
 
-
     # データのセット
     for i in Journey.location:
         for j in Journey.location:
@@ -295,7 +290,8 @@ def calcFirstJourneyData(event):
                 continue
             Journey.timeEdge[i, j] = calc2PointTime(i, j)
             Journey.timeEdge[j, i] = Journey.timeEdge[i, j]
-            Journey.PointValue[i, j] = Journey.locationValue[i] + Journey.locationValue[j]
+            Journey.PointValue[i, j] = Journey.locationValue[
+                i] + Journey.locationValue[j]
             Journey.PointValue[j, i] = Journey.PointValue[i, j]
             print(i + " to " + j + "   " + str(Journey.timeEdge[i, j]))
 
@@ -304,8 +300,7 @@ def calcFirstJourneyData(event):
 
     message = CreateResult(route, point)
 
-
-    txtarray =[]
+    txtarray = []
     for st in message:
         print(st)
         txtarray.append(TextSendMessage(text=st))
@@ -313,8 +308,6 @@ def calcFirstJourneyData(event):
     line_bot_api.reply_message(
         event.reply_token,
         txtarray)
-
-
 
 
 @app.route("/callback", methods=['POST'])
@@ -339,7 +332,6 @@ def callback():
 def handle_postback(event):
     print(event)
 
-
     if (Journey.step == 3):
 
         Journey.EndTime = event.postback.params["time"]
@@ -348,7 +340,7 @@ def handle_postback(event):
         dt2 = datetime.datetime.strptime(Journey.EndTime, '%H:%M')
         input_time2 = dt2.time()
 
-        Journey.MaxTravelTime =  (dt2-dt1).total_seconds()
+        Journey.MaxTravelTime = (dt2 - dt1).total_seconds()
 
         print(Journey.StartTime)
         print(Journey.EndTime)
@@ -356,7 +348,6 @@ def handle_postback(event):
         print("maxTime")
         print(Journey.MaxTravelTime)
         calcFirstJourneyData(event)
-
 
     if (Journey.step == 2):
         Journey.StartTime = event.postback.params["time"]
@@ -379,7 +370,6 @@ def handle_postback(event):
             event.reply_token,
             date_picker2
         )
-
 
 
 @handler.add(MessageEvent, message=TextMessage)
@@ -420,10 +410,8 @@ def handle_message(event):
                 TextSendMessage(text='行きたい場所を教えてください'))
 
 
-
 # if __name__ == "__main__":
     # app.run(host='localhost', port=3000)
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-
