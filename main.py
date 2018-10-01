@@ -138,25 +138,12 @@ def calc2PointTime(fromPlaceName, toPlaceName):
 
 
 def calcPath(location, e, c, time, stayTime=3600):
-    # location = ['a','b','c','d','e']#拠点名
-    # time = 2
-    # e = {} # 空の辞書#各拠点間時間
-    # c = {} # 空の辞書cost   #拠点のコスト
-    # for i in location:
-    #     for j in location:
-    #         e[i,j] = 1
-    #         c[i,j] = 1
-
     # 最適化問題を解く
     problem = pulp.LpProblem('sample', pulp.LpMaximize)
-    # xi 拠点に行くなら1
-    # 0-1変数を宣言
-    # 変数集合を表す辞書
     x = {}  # 空の辞書
     for i in location:
         for j in location:
-            x[i, j] = pulp.LpVariable(
-                "x({:},{:})".format(i, j), 0, 1, pulp.LpInteger)
+            x[i, j] = pulp.LpVariable("x({:},{:})".format(i, j), 0, 1, pulp.LpInteger)
     y = {}  # 空の辞書
     for i in location:
         y[i] = pulp.LpVariable("y({:})".format(i), 0, 1, pulp.LpInteger)
@@ -219,6 +206,10 @@ def CreateResult(route, point):
     #         pointCount+=1
     # if (pointCount <= 1):  # 旅程が建てられない場合
     #     return '可能なプランがありません！'
+
+
+
+
 
     edge = {}
     for i in Journey.location:

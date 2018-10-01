@@ -32,7 +32,13 @@ URL
 ### log2
 - Procfileをmain.pyに
 - syntax errorが出てる
+- pulpの定式化を修正
+- main.pyの動作を確認
 
+### log3
+- DBの導入
+- 観光地リストの自動取得
+- ノード一つしかなかった場合の出力訂正
 
 
 ### ngrokについて
