@@ -8,6 +8,7 @@ import pulp
 import re
 import datetime
 import random
+import psycopg2
 import lxml.html
 from bs4 import BeautifulSoup
 from flask_sqlalchemy import SQLAlchemy # 変更

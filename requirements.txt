@@ -6,3 +6,4 @@ gunicorn==19.9.0
 Flask-SQLAlchemy==2.3.2
 lxml==4.0.0
 beautifulsoup4==4.6.0
+psycopg2==2.7.5
