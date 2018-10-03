@@ -123,9 +123,7 @@ class MapRoute:
         self.region = "ja"
 
 
-# -----------------------------------
-#   未使用
-# -----------------------------------Goolge Map Direction 取得
+
 def getGoogleMapDirection(route):
     # Goolge Map Direction API トークン
     api_key = "AIzaSyD9PKwDNyYQep3mw2M_cwUmWU3Kl9iNhRM"
@@ -148,75 +146,6 @@ def getGoogleMapDirection(route):
 
     except Exception as e:
         raise e
-
-
-def calc2PointTime(fromPlaceName, toPlaceName):
-    place_url = 'https://maps.googleapis.com/maps/api/place/textsearch/json'
-    start_place_query = {'query': fromPlaceName,
-                         'language': 'ja',
-                         'key': 'AIzaSyD9PKwDNyYQep3mw2M_cwUmWU3Kl9iNhRM'}
-    destination_place_query = {'query': toPlaceName,
-                               'language': 'ja',
-                               'key': 'AIzaSyD9PKwDNyYQep3mw2M_cwUmWU3Kl9iNhRM'}
-
-    s = requests.Session()
-    s.headers.update({'Referer': 'www.monotalk.xyz/example'})
-
-    r = s.get(place_url, params=start_place_query)
-    json_start = r.json()
-    r = s.get(place_url, params=destination_place_query)
-    json_destionation = r.json()
-
-    Journey.locationValue[fromPlaceName] = json_start["results"][0]["rating"]
-
-    location = json_start["results"][0]["geometry"]["location"]
-    src = MapCoordinate(location["lat"], location["lng"])
-    location = json_destionation["results"][0]["geometry"]["location"]
-    dest = MapCoordinate(location["lat"], location["lng"])
-
-
-    route = MapRoute(src, dest, MapRoute.mode_transit)
-
-    direction_json = getGoogleMapDirection(route)
-    duringtime = direction_json['routes'][0]['legs'][
-        0]['duration']["value"]  # これで２点間を車移動したときの秒数が入る
-
-    return duringtime
-
-
-def calcFirstJourneyData(event):
-
-    for i in Journey.location:
-        Journey.locationValue[i] = 0
-
-    # データのセット
-    for i in Journey.location:
-        for j in Journey.location:
-            if ((i, j) in Journey.timeEdge):
-                continue
-            Journey.timeEdge[i, j] = calc2PointTime(i, j)
-            Journey.timeEdge[j, i] = Journey.timeEdge[i, j]
-            Journey.PointValue[i, j] = Journey.locationValue[
-                i] + Journey.locationValue[j]
-            Journey.PointValue[j, i] = Journey.PointValue[i, j]
-            print(i + " to " + j + "   " + str(Journey.timeEdge[i, j]))
-
-    route, point = calcPath(Journey.location, Journey.timeEdge,
-                            Journey.PointValue, Journey.MaxTravelTime, Journey.StayTime)
-
-    message = CreateResult(route, point)
-
-    txtarray = []
-    for st in message:
-        print(st)
-        txtarray.append(TextSendMessage(text=st))
-
-    line_bot_api.reply_message(
-        event.reply_token,
-        txtarray)
-
-
-
 
 
 def calcPath(location, e, c, time, stayTime=3600):
@@ -349,7 +278,6 @@ def CreateResult(route, point):
     return message
 
 
-
 def getPathromGoogleAPI(fromplace,toplace):
 
 
@@ -390,14 +318,14 @@ def getPointFromGoogleAPI(PlaceName):
 # メインルーチン
 # -------------------------------------------
 def mainRoutine(event=0,time=0,pref='大阪'):
-
-
     # ----------------------------------------------------------
     #   DB初期化
     # ----------------------------------------------------------
     InitDB()
 
-    # 要素を並び替え
+    # ----------------------------------------------------------
+    #   DBから要素取得とソート,GoogleAPIで位置取得
+    # ----------------------------------------------------------
     spots = db.session.query(Spot).filter(Spot.pref == pref).order_by('score')
 
     for spot in spots:
@@ -406,25 +334,26 @@ def mainRoutine(event=0,time=0,pref='大阪'):
             spot.lat, spot.lng = getPointFromGoogleAPI(spot.name)
             db.session.commit()
 
-    # BaseQueryオブジェクトから別のオブジェクトへ変更
+    # # ----------------------------------------------------------
+    # # BaseQueryオブジェクトから別のオブジェクトへ変更
+    # # ----------------------------------------------------------
     for spot in spots:
         if (spot.lat != None):
             Journey.location.append(spot.name)
             Journey.locationValue[spot.name] = spot.score
 
-
     Journey.location = random.sample(Journey.location,5)
 
-    # 上から30こ取得
+
+
     for spot in spots:
         print(str(spot.id) + "   "+spot.name + "  " + str(spot.score) )
         print("   lat:"+str(spot.lat) + "   lng:"+str(spot.lng) )
 
 
-
-    # DBに2点間の距離がないなら
-    # maxで(n-1)(n-2)/2回API叩く必要がある →　初回はgoogleの制限超えそう
-    # calc2PointTime
+    # # ----------------------------------------------------------
+    # #   i-jパスの設定
+    # # ----------------------------------------------------------
     for i in spots:
         if (i.name not in Journey.location ):
             continue
@@ -438,11 +367,13 @@ def mainRoutine(event=0,time=0,pref='大阪'):
                 r = db.session.query(SpotDist).filter(SpotDist.id_from == i.id).filter(SpotDist.id_to == j.id)
                 Journey.timeEdge[i.name,j.name] = r.time
                 Journey.timeEdge[j.name,i.name] = r.time
+                print("Data is discovered")
                 continue
             if (db.session.query(SpotDist).filter(SpotDist.id_from == j.id).filter(SpotDist.id_to == i.id).count() > 0 ):
                 r = db.session.query(SpotDist).filter(SpotDist.id_from == i.id).filter(SpotDist.id_to == j.id)
                 Journey.timeEdge[i.name,j.name] = r.time
                 Journey.timeEdge[j.name,i.name] = r.time
+                print("Data is discovered")
                 continue
             # i-jパスがない時
             spotdist = SpotDist()
@@ -451,8 +382,8 @@ def mainRoutine(event=0,time=0,pref='大阪'):
             db.session.commit()
             Journey.timeEdge[i.name,j.name] = spotdist.time
             Journey.timeEdge[j.name,i.name] = spotdist.time
-
             print("Call DirectionAPI : " + i.name +"-"+ j.name +"   time: " +str(spotdist.time) )
+
 
 
     for i in Journey.location:
@@ -540,7 +471,7 @@ def handle_postback(event):
         Journey.StartTime = event.postback.params["time"]
         Journey.step = 3
         date_picker2 = TemplateSendMessage(
-            alt_text='終了時間を設定',
+            alt_text='終了時間を設定'+str(Journey.step),
             template=ButtonsTemplate(
                 text='終了時間を設定',
                 title='hh--mm',
@@ -567,13 +498,13 @@ def handle_message(event):
         Journey.step = 1
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text='どこに行きたいですか？'))
+            TextSendMessage(text='どこに行きたいですか？'+str(Journey.step)))
 
     if (text in "大阪"):
         if (Journey.step == 1):
             Journey.step = 2
             date_picker1 = TemplateSendMessage(
-                alt_text='開始時間を設定',
+                alt_text='開始時間を設定'+str(Journey.step),
                 template=ButtonsTemplate(
                     text='開始時間を設定',
                     title='hh--mm',
@@ -594,7 +525,7 @@ def handle_message(event):
         if (Journey.step == 1):
             line_bot_api.reply_message(
                 event.reply_token,
-                TextSendMessage(text='行きたい場所を教えてください'))
+                TextSendMessage(text='行きたい場所を教えてください'+str(Journey.step)))
 
 
 

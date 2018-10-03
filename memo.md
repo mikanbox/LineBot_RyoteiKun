@@ -40,7 +40,6 @@ URL
 ### log3
 - DBの導入
   - https://qiita.com/croquette0212/items/9b4dc5377e7d6f292671
-
   - Sqlアルケミーを利用してDBをオブジェクト管理
 
 
