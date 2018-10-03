@@ -471,9 +471,9 @@ def handle_postback(event):
         Journey.StartTime = event.postback.params["time"]
         Journey.step = 3
         date_picker2 = TemplateSendMessage(
-            alt_text='終了時間を設定'+str(Journey.step),
+            alt_text='終了時間を設定',
             template=ButtonsTemplate(
-                text='終了時間を設定',
+                text='終了時間を設定'+str(Journey.step),
                 title='hh--mm',
                 actions=[
                     DatetimePickerTemplateAction(
@@ -504,9 +504,9 @@ def handle_message(event):
         if (Journey.step == 1):
             Journey.step = 2
             date_picker1 = TemplateSendMessage(
-                alt_text='開始時間を設定'+str(Journey.step),
+                alt_text='開始時間を設定',
                 template=ButtonsTemplate(
-                    text='開始時間を設定',
+                    text='開始時間を設定'+str(Journey.step),
                     title='hh--mm',
                     actions=[
                         DatetimePickerTemplateAction(
