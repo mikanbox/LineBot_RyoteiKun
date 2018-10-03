@@ -478,9 +478,10 @@ def mainRoutine(event=0,time=0,pref='大阪'):
         print(st)
         txtarray.append(TextSendMessage(text=st))
 
-    line_bot_api.reply_message(
-        event.reply_token,
-        txtarray)
+    if (event !=None):
+        line_bot_api.reply_message(
+            event.reply_token,
+            txtarray)
 
 
 
@@ -670,7 +671,8 @@ def GetJaran():
 
 @app.route("/testMain/")
 def testmain():
-    mainRoutine()
+    mainRoutine(event = None)
+    return "API is succeed"
 
 
 if __name__ == "__main__":

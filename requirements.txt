@@ -4,3 +4,4 @@ PuLP==1.6.8
 requests==2.19.1
 gunicorn==19.9.0
 Flask-SQLAlchemy==2.3.2
+lxml==4.0.0
