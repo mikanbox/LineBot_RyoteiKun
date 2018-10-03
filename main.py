@@ -342,7 +342,7 @@ def mainRoutine(event=0,time=0,pref='大阪'):
             Journey.location.append(spot.name)
             Journey.locationValue[spot.name] = spot.score
 
-    Journey.location = random.sample(Journey.location,5)
+    # Journey.location = random.sample(Journey.location,5)
 
 
 
@@ -426,7 +426,7 @@ def InitDB():
 # -------------------------------------------
 # API
 # -------------------------------------------
-
+# 端末からのデータ受取時に呼ばれるコールバック
 @app.route("/callback", methods=['POST'])
 def callback():
     # get X-Line-Signature header value
@@ -450,13 +450,11 @@ def handle_postback(event):
     print(event)
 
     if (Journey.step == 3):
-
         Journey.EndTime = event.postback.params["time"]
         dt1 = datetime.datetime.strptime(Journey.StartTime, '%H:%M')
         input_time1 = dt1.time()
         dt2 = datetime.datetime.strptime(Journey.EndTime, '%H:%M')
         input_time2 = dt2.time()
-
         Journey.MaxTravelTime = (dt2 - dt1).total_seconds()
 
         print(Journey.StartTime)
