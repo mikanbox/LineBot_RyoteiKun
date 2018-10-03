@@ -35,10 +35,25 @@ URL
 - pulpの定式化を修正
 - main.pyの動作を確認
 
+
+
 ### log3
 - DBの導入
+  - https://qiita.com/croquette0212/items/9b4dc5377e7d6f292671
+
+  - Sqlアルケミーを利用してDBをオブジェクト管理
+
+
 - 観光地リストの自動取得
+  - google検索 おすすめスポット api
+  - API利用:[公共クラウドシステム](https://www.chiikinogennki.soumu.go.jp/k-cloud-api/genre/137.html)
+  - 権利関係はちゃんと確認したほうがいい
+
 - ノード一つしかなかった場合の出力訂正
+- なんか1回じゃデータ送れていない時がある
+  - データ送信のステップがおかしいのでちゃんと表示したほうがいいかも.....
+
+
 
 
 ### ngrokについて

@@ -7,9 +7,17 @@ import requests
 import pulp
 import re
 import datetime
+import random
+import lxml.html
+from bs4 import BeautifulSoup
+from flask_sqlalchemy import SQLAlchemy # 変更
+from sqlalchemy import *
+from sqlalchemy.orm import *
+
+
 sys.path.append('./vendor')
 
-from flask import Flask, request, abort
+from flask import Flask, request, abort, render_template
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -37,12 +45,48 @@ line_bot_api = LineBotApi(
 handler = WebhookHandler('c9f4a586a8d8b03ce5f6008e79d1414e')
 
 
+# DB設定
+db_uri = "sqlite:///" + os.path.join(app.root_path, 'JouneySpot.db') # 追加
+app.config['SQLALCHEMY_DATABASE_URI'] = db_uri # 追加
+db = SQLAlchemy(app) # 追加
+
+ENGINE = create_engine(
+    db_uri,
+    encoding = "utf-8",
+    echo=True # Trueだと実行のたびにSQLが出力される
+)
+
+
+
+# DBデータ定義
+class Spot(db.Model):
+    __tablename__ = "spots" # 追加
+    id    = db.Column(db.Integer, primary_key=True,autoincrement=True) # 追加
+    name  = db.Column(db.String(), nullable=False) # 追加
+    score = db.Column(db.Float()) # 追加
+    lat   = db.Column(db.Float()) # 追加
+    lng   = db.Column(db.Float()) # 追加
+    pref  = db.Column(db.String(), nullable=False) # 追加
+    attribute  = db.Column(db.Integer()) # 追加
+
+
+class SpotDist(db.Model):
+    __tablename__ = "spotDist" # 追加
+    id    = db.Column(db.Integer, primary_key=True,autoincrement=True) # 追加
+    id_from     = db.Column(db.Integer()) # 追加
+    id_to       = db.Column(db.Integer()) # 追加
+    distance    = db.Column(db.Float()) # 追加
+    time        = db.Column(db.Float()) # 追加
+    searchTime  = db.Column(db.Float()) # 追加
+
+
 class Journey:
     step = 0
-    location = ['大阪城', '通天閣', '万博公園', 'スパワールド', '大阪大学', 'ポンポン山']  # 拠点名
+    # location = ['大阪城', '通天閣', '万博公園', 'スパワールド', '大阪大学', 'ポンポン山']  # 拠点名
+    location = []
     locationValue = {}
     timeEdge = {}
-    PointValue = {}
+    PointValue = {} # 実際はエッジの利益
     MaxTravelTime = 60 * 60 * 1
     StayTime = 3600
     StartTime = ""
@@ -50,8 +94,6 @@ class Journey:
 
 
 # 位置座標クラス
-
-
 class MapCoordinate:
 
     def __init__(self, latitude, longitude):
@@ -61,8 +103,6 @@ class MapCoordinate:
     def position(self):
         return "{0},{1}".format(self.latitude, self.longitude)
 # ルートクラス
-
-
 class MapRoute:
     mode_driving = "driving"
     mode_walking = "walking"
@@ -77,11 +117,10 @@ class MapRoute:
         self.units = "metric"
         self.region = "ja"
 
+
+
 # Goolge Map Direction 取得
-
-
 def getGoogleMapDirection(route):
-
     # Goolge Map Direction API トークン
     api_key = "AIzaSyD9PKwDNyYQep3mw2M_cwUmWU3Kl9iNhRM"
     # Google Maps Direction API URL
@@ -128,6 +167,8 @@ def calc2PointTime(fromPlaceName, toPlaceName):
     src = MapCoordinate(location["lat"], location["lng"])
     location = json_destionation["results"][0]["geometry"]["location"]
     dest = MapCoordinate(location["lat"], location["lng"])
+
+
     route = MapRoute(src, dest, MapRoute.mode_transit)
 
     direction_json = getGoogleMapDirection(route)
@@ -201,12 +242,11 @@ def CreateResult(route, point):
                 print(i + "  to  " + j)
 
     pointCount = 0
-    # for i in Journey.location:
-    #     if (point[i].value() == 1):
-    #         pointCount+=1
-    # if (pointCount <= 1):  # 旅程が建てられない場合
-    #     return '可能なプランがありません！'
-
+    for i in Journey.location:
+        if (point[i].value() == 1):
+            pointCount+=1
+    if (pointCount <= 1):  # 旅程が建てられない場合
+        return '可能なプランがありません！'
 
 
 
@@ -299,6 +339,151 @@ def calcFirstJourneyData(event):
         event.reply_token,
         txtarray)
 
+
+def getPathromGoogleAPI(fromplace,toplace):
+
+
+    src = MapCoordinate(fromplace[0], fromplace[1])
+    dest = MapCoordinate(toplace[0], toplace[1])
+    route = MapRoute(src, dest, MapRoute.mode_transit)
+
+
+    direction_json = getGoogleMapDirection(route)
+    duringtime = direction_json['routes'][0]['legs'][
+        0]['duration']["value"]  # これで２点間を車移動したときの秒数が入る
+
+    return duringtime
+
+
+
+def getPointFromGoogleAPI(PlaceName):
+    place_url = 'https://maps.googleapis.com/maps/api/place/textsearch/json'
+    query = {'query': PlaceName,
+            'language': 'ja',
+            'key': 'AIzaSyD9PKwDNyYQep3mw2M_cwUmWU3Kl9iNhRM'}
+    s = requests.Session()
+    s.headers.update({'Referer': 'www.monotalk.xyz/example'})
+
+    r = s.get(place_url, params=query)
+    json_start = r.json()
+
+
+    if (json_start['status'] == 'ZERO_RESULTS'):
+        return None,None
+
+    # print(json.dumps(json_start,ensure_ascii=False, indent=2))
+
+    location = json_start["results"][0]["geometry"]["location"]
+    return float(location["lat"]),float(location["lng"])
+
+# -------------------------------------------
+# メインルーチン
+# -------------------------------------------
+def mainRoutine(event=0,time=0,pref='大阪'):
+
+
+    # ----------------------------------------------------------
+    #   DB初期化
+    # ----------------------------------------------------------
+    InitDB()
+
+    # 要素を並び替え
+    spots = db.session.query(Spot).filter(Spot.pref == pref).order_by('score')
+
+    for spot in spots:
+        if (spot.lat == None):
+            print(spot.name)
+            spot.lat, spot.lng = getPointFromGoogleAPI(spot.name)
+            db.session.commit()
+
+    # BaseQueryオブジェクトから別のオブジェクトへ変更
+    for spot in spots:
+        if (spot.lat != None):
+            Journey.location.append(spot.name)
+            Journey.locationValue[spot.name] = spot.score
+
+
+    Journey.location = random.sample(Journey.location,5)
+
+    # 上から30こ取得
+    for spot in spots:
+        print(str(spot.id) + "   "+spot.name + "  " + str(spot.score) )
+        print("   lat:"+str(spot.lat) + "   lng:"+str(spot.lng) )
+
+
+
+    # DBに2点間の距離がないなら
+    # maxで(n-1)(n-2)/2回API叩く必要がある →　初回はgoogleの制限超えそう
+    # calc2PointTime
+    for i in spots:
+        if (i.name not in Journey.location ):
+            continue
+        for j in spots:
+            if (j.name not in Journey.location ):
+                continue
+            if (j.name == i.name):
+                continue
+
+            if (db.session.query(SpotDist).filter(SpotDist.id_from == i.id).filter(SpotDist.id_to == j.id).count() > 0 ):
+                r = db.session.query(SpotDist).filter(SpotDist.id_from == i.id).filter(SpotDist.id_to == j.id)
+                Journey.timeEdge[i.name,j.name] = r.time
+                Journey.timeEdge[j.name,i.name] = r.time
+                continue
+            if (db.session.query(SpotDist).filter(SpotDist.id_from == j.id).filter(SpotDist.id_to == i.id).count() > 0 ):
+                r = db.session.query(SpotDist).filter(SpotDist.id_from == i.id).filter(SpotDist.id_to == j.id)
+                Journey.timeEdge[i.name,j.name] = r.time
+                Journey.timeEdge[j.name,i.name] = r.time
+                continue
+            # i-jパスがない時
+            spotdist = SpotDist()
+            spotdist.time = getPathromGoogleAPI([i.lat,i.lng],[j.lat,j.lng])
+            db.session.add(spotdist)
+            db.session.commit()
+            Journey.timeEdge[i.name,j.name] = spotdist.time
+            Journey.timeEdge[j.name,i.name] = spotdist.time
+
+            print("Call DirectionAPI : " + i.name +"-"+ j.name +"   time: " +str(spotdist.time) )
+
+
+    for i in Journey.location:
+        for j in Journey.location:
+            Journey.PointValue[i, j] = Journey.locationValue[i] + Journey.locationValue[j]
+            Journey.PointValue[j, i] = Journey.PointValue[i, j]
+
+
+
+    # # ----------------------------------------------------------
+    # #   最適化問題の計算
+    # # ----------------------------------------------------------
+    route, point = calcPath(Journey.location, Journey.timeEdge,
+                            Journey.PointValue, Journey.MaxTravelTime, Journey.StayTime)
+    # # ----------------------------------------------------------
+    # #   返送用メッセージを生成
+    # # ----------------------------------------------------------
+    message = CreateResult(route, point)
+    # # ----------------------------------------------------------
+    # #   返送用Line構造体を生成
+    # # ----------------------------------------------------------
+    txtarray = []
+    for st in message:
+        print(st)
+        txtarray.append(TextSendMessage(text=st))
+
+    # line_bot_api.reply_message(
+    #     event.reply_token,
+    #     txtarray)
+
+
+
+
+def InitDB():
+    Spot.metadata.create_all(bind = ENGINE)
+    SpotDist.metadata.create_all(bind = ENGINE)
+
+
+# -------------------------------------------
+# API
+# -------------------------------------------
 
 @app.route("/callback", methods=['POST'])
 def callback():
@@ -400,8 +585,84 @@ def handle_message(event):
                 TextSendMessage(text='行きたい場所を教えてください'))
 
 
-# if __name__ == "__main__":
-    # app.run(host='localhost', port=3000)
+
+
+
+@app.route("/")
+def hello():
+    return "Hello World!"
+
+
+#公共クラウドシステムからデータ取得(未使用)
+@app.route("/getJourney/")
+def helloDB():
+    janl = "山岳;遊ぶ"
+    janl = urllib.parse.quote(janl)
+    query = {'place': '大阪府',
+                               'limit': 20}
+    query = urllib.parse.urlencode(query)
+    url = "https://www.chiikinogennki.soumu.go.jp/k-cloud-api/v001/kanko/"+janl+"/json?"+query
+    print(url)
+    s = requests.Session()
+    s.headers.update({'Referer': 'www.monotalk.xyz/example'})
+    r = s.get(url)
+    jsonData = r.json()
+
+    print(json.dumps(jsonData,ensure_ascii=False, indent=2))
+
+    return json.dumps(jsonData,ensure_ascii=False, indent=2)
+
+
+#じゃらんからリストスクレイピングしてくる
+@app.route("/getSpotFromJaran/")
+def GetJaran():
+    InitDB()
+    headers = {
+    "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0",
+    }
+
+    for number in range(1,47):
+        # number = 47
+        url = "https://www.jalan.net/kankou/"+'{0:02d}'.format(number)+"0000/"
+
+        request = urllib.request.Request(url=url, headers=headers)
+        response = urllib.request.urlopen(request)
+        doc = lxml.html.fromstring(response.read())
+
+        prefName = doc.xpath('//*[@id="topicpath"]/ol/li[3]')
+        spotName = doc.xpath('//*[@id="cassetteType"]/li/div/div[2]/p[1]/a')
+        spotScore = doc.xpath('//*[@id="cassetteType"]/li/div/div[2]/div[3]/span[2]')
+
+        pref =""
+        for p in prefName:
+            pref = p.text[:-3]
+        # DBに追加
+        spots = list()
+        for (s, sc) in zip(spotName, spotScore):
+            if (db.session.query(Spot).filter(Spot.name == s.text).count() > 0):
+                continue
+            spot = Spot()
+            spot.name =s.text
+            spot.pref = pref
+            spot.score = float(sc.text)
+            spots.append(spot)
+        db.session.add_all(spots)
+        db.session.commit()
+
+
+    # Userテーブルのnameカラムをすべて取得
+    spots = db.session.query(Spot).all()
+    for spot in spots:
+        print(str(spot.id) + "   "+spot.name + "  " + str(spot.score) )
+
+    # return json.dumps(jsonData,ensure_ascii=False, indent=2)
+
+
+@app.route("/testMain/")
+def testmain():
+    mainRoutine()
+
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
