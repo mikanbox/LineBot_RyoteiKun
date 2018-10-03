@@ -47,6 +47,10 @@ handler = WebhookHandler('c9f4a586a8d8b03ce5f6008e79d1414e')
 
 # DB設定
 db_uri = "sqlite:///" + os.path.join(app.root_path, 'JouneySpot.db') # 追加
+db_uri = os.environ.get('DATABASE_URL') or "sqlite:///" + os.path.join(app.root_path, 'JouneySpot.db')
+
+
+
 app.config['SQLALCHEMY_DATABASE_URI'] = db_uri # 追加
 db = SQLAlchemy(app) # 追加
 
@@ -118,8 +122,9 @@ class MapRoute:
         self.region = "ja"
 
 
-
-# Goolge Map Direction 取得
+# -----------------------------------
+#   未使用
+# -----------------------------------Goolge Map Direction 取得
 def getGoogleMapDirection(route):
     # Goolge Map Direction API トークン
     api_key = "AIzaSyD9PKwDNyYQep3mw2M_cwUmWU3Kl9iNhRM"
@@ -176,6 +181,41 @@ def calc2PointTime(fromPlaceName, toPlaceName):
         0]['duration']["value"]  # これで２点間を車移動したときの秒数が入る
 
     return duringtime
+
+
+def calcFirstJourneyData(event):
+
+    for i in Journey.location:
+        Journey.locationValue[i] = 0
+
+    # データのセット
+    for i in Journey.location:
+        for j in Journey.location:
+            if ((i, j) in Journey.timeEdge):
+                continue
+            Journey.timeEdge[i, j] = calc2PointTime(i, j)
+            Journey.timeEdge[j, i] = Journey.timeEdge[i, j]
+            Journey.PointValue[i, j] = Journey.locationValue[
+                i] + Journey.locationValue[j]
+            Journey.PointValue[j, i] = Journey.PointValue[i, j]
+            print(i + " to " + j + "   " + str(Journey.timeEdge[i, j]))
+
+    route, point = calcPath(Journey.location, Journey.timeEdge,
+                            Journey.PointValue, Journey.MaxTravelTime, Journey.StayTime)
+
+    message = CreateResult(route, point)
+
+    txtarray = []
+    for st in message:
+        print(st)
+        txtarray.append(TextSendMessage(text=st))
+
+    line_bot_api.reply_message(
+        event.reply_token,
+        txtarray)
+
+
+
 
 
 def calcPath(location, e, c, time, stayTime=3600):
@@ -308,37 +348,6 @@ def CreateResult(route, point):
     return message
 
 
-def calcFirstJourneyData(event):
-
-    for i in Journey.location:
-        Journey.locationValue[i] = 0
-
-    # データのセット
-    for i in Journey.location:
-        for j in Journey.location:
-            if ((i, j) in Journey.timeEdge):
-                continue
-            Journey.timeEdge[i, j] = calc2PointTime(i, j)
-            Journey.timeEdge[j, i] = Journey.timeEdge[i, j]
-            Journey.PointValue[i, j] = Journey.locationValue[
-                i] + Journey.locationValue[j]
-            Journey.PointValue[j, i] = Journey.PointValue[i, j]
-            print(i + " to " + j + "   " + str(Journey.timeEdge[i, j]))
-
-    route, point = calcPath(Journey.location, Journey.timeEdge,
-                            Journey.PointValue, Journey.MaxTravelTime, Journey.StayTime)
-
-    message = CreateResult(route, point)
-
-    txtarray = []
-    for st in message:
-        print(st)
-        txtarray.append(TextSendMessage(text=st))
-
-    line_bot_api.reply_message(
-        event.reply_token,
-        txtarray)
-
 
 def getPathromGoogleAPI(fromplace,toplace):
 
@@ -469,9 +478,9 @@ def mainRoutine(event=0,time=0,pref='大阪'):
         print(st)
         txtarray.append(TextSendMessage(text=st))
 
-    # line_bot_api.reply_message(
-    #     event.reply_token,
-    #     txtarray)
+    line_bot_api.reply_message(
+        event.reply_token,
+        txtarray)
 
 
 
@@ -522,7 +531,8 @@ def handle_postback(event):
 
         print("maxTime")
         print(Journey.MaxTravelTime)
-        calcFirstJourneyData(event)
+        # calcFirstJourneyData(event)
+        mainRoutine(event,"大阪")
 
     if (Journey.step == 2):
         Journey.StartTime = event.postback.params["time"]
