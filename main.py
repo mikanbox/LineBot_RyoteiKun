@@ -609,10 +609,10 @@ def testmain():
 @app.route("/getSpotDist/")
 def testmain():
     # Userテーブルのnameカラムをすべて取得
-    spots = db.session.query(SpotDist).all()
-    for spot in spots:
+    spotds = db.session.query(SpotDist).all()
+    for spot in spotds:
         print(str(spot.id_from) + " - "+str(spot.id_to) + "  " + str(spot.time) )
-    return spots
+    return "end"
 
 
 if __name__ == "__main__":
