@@ -356,6 +356,7 @@ def callback():
 
 @handler.add(PostbackEvent)
 def handle_postback(event):
+    print("GetPostBackEvent\n\n\n\n")
     print(event)
 
     if (Journey.step == 3):
@@ -399,6 +400,7 @@ def handle_postback(event):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    print("GetTextMessage\n\n\n\n")
     text = event.message.text
 
     if (text in "テスト起動"):
@@ -432,9 +434,8 @@ def handle_message(event):
                 event.reply_token,
                 date_picker1
             )
-        
     else:
-        if (Journey.step == 1):
+        if (Journey.step == 1 and text not in "旅行"):
             line_bot_api.reply_message(
                 event.reply_token,
                 TextSendMessage(text='行きたい場所を教えてください'+str(Journey.step)))
