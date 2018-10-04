@@ -342,13 +342,13 @@ def mainRoutine(event=0,time=0,pref='大阪'):
             Journey.location.append(spot.name)
             Journey.locationValue[spot.name] = spot.score
 
-    Journey.location = random.sample(Journey.location,8)
+    Journey.location = random.sample(Journey.location,5)
 
 
 
-    for spot in spots:
-        print(str(spot.id) + "   "+spot.name + "  " + str(spot.score) )
-        print("   lat:"+str(spot.lat) + "   lng:"+str(spot.lng) )
+    # for spot in spots:
+    #     print(str(spot.id) + "   "+spot.name + "  " + str(spot.score) )
+    #     print("   lat:"+str(spot.lat) + "   lng:"+str(spot.lng) )
 
 
     # # ----------------------------------------------------------
@@ -411,10 +411,13 @@ def mainRoutine(event=0,time=0,pref='大阪'):
         txtarray.append(TextSendMessage(text=st))
 
     print("sendMessage")
-    if (event !=None):
-        line_bot_api.reply_message(
-            event.reply_token,
-            txtarray)
+    # if (event !=None):
+    #     line_bot_api.reply_message(
+    #         event.reply_token,
+    #         txtarray)
+    line_bot_api.reply_message(
+    event.reply_token,
+    TextSendMessage(text='どこに行きたいですか？'+str(Journey.step)))
 
 
 
@@ -494,7 +497,7 @@ def handle_message(event):
     text = event.message.text
 
     if (text in "テスト起動"):
-        mainRoutine(event,12800,"大阪")
+        mainRoutine(event,22800,"大阪")
 
 
     if (text in "旅行"):
@@ -611,7 +614,7 @@ def GetJaran():
 ## テスト用API
 @app.route("/testMain/")
 def testmain():
-    mainRoutine(event = None,time=12800)
+    mainRoutine(event = None,time=22800)
     return "API is succeed"
 
 
