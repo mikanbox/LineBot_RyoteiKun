@@ -1,6 +1,8 @@
 import requests
 import urllib
 import json
+import APIkey
+
 
 # 位置座標クラス
 class MapCoordinate:
@@ -30,7 +32,7 @@ class MapRoute:
 
 def getGoogleMapDirection(route):
     # Goolge Map Direction API トークン
-    api_key = "AIzaSyD9PKwDNyYQep3mw2M_cwUmWU3Kl9iNhRM"
+    api_key = googleAPIkey
     # Google Maps Direction API URL
     url = "https://maps.googleapis.com/maps/api/directions/json"
 
@@ -70,7 +72,7 @@ def getPointFromGoogleAPI(PlaceName):
     place_url = 'https://maps.googleapis.com/maps/api/place/textsearch/json'
     query = {'query': PlaceName,
             'language': 'ja',
-            'key': 'AIzaSyD9PKwDNyYQep3mw2M_cwUmWU3Kl9iNhRM'}
+            'key': googleAPIkey}
     s = requests.Session()
     s.headers.update({'Referer': 'www.monotalk.xyz/example'})
 
