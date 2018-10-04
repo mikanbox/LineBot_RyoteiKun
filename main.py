@@ -567,6 +567,7 @@ def GetJaran():
     }
 
     for number in range(1,47):
+        print(str(number))
         # number = 47
         url = "https://www.jalan.net/kankou/"+'{0:02d}'.format(number)+"0000/"
 
@@ -602,7 +603,7 @@ def GetJaran():
         print(str(spot.id) + "   "+spot.name + "  " + str(spot.score) )
 
 
-    return json.dumps(jsonData,ensure_ascii=False, indent=2)
+    return "jaran"
 
 
 @app.route("/testMain/")
