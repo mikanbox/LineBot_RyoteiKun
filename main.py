@@ -342,7 +342,7 @@ def mainRoutine(event=0,time=0,pref='大阪'):
             Journey.location.append(spot.name)
             Journey.locationValue[spot.name] = spot.score
 
-    # Journey.location = random.sample(Journey.location,5)
+    Journey.location = random.sample(Journey.location,8)
 
 
 
@@ -559,6 +559,7 @@ def helloDB():
 
 
 #じゃらんからリストスクレイピングしてくる
+# 30秒のタイムアウトがある
 @app.route("/getSpotFromJaran/")
 def GetJaran():
     InitDB()
@@ -566,7 +567,7 @@ def GetJaran():
     "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0",
     }
 
-    for number in range(1,15):
+    for number in range(1,47):
         print(str(number))
         # number = 47
         url = "https://www.jalan.net/kankou/"+'{0:02d}'.format(number)+"0000/"
