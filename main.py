@@ -333,7 +333,7 @@ def mainRoutine(event=0,time=0,pref='大阪'):
 
 
 # -------------------------------------------
-# API
+# Line messaging API
 # -------------------------------------------
 # 端末からのデータ受取時に呼ばれるコールバック
 @app.route("/callback", methods=['POST'])
@@ -372,7 +372,7 @@ def handle_postback(event):
         print("maxTime")
         print(Journey.MaxTravelTime)
         # calcFirstJourneyData(event)
-        mainRoutine(event,"大阪")
+        mainRoutine(event,time=28000,"大阪")
 
     if (Journey.step == 2):
         Journey.StartTime = event.postback.params["time"]
@@ -391,10 +391,10 @@ def handle_postback(event):
                 ]
             )
         )
-        line_bot_api.reply_message(
-            event.reply_token,
-            date_picker2
-        )
+            line_bot_api.reply_message(
+                event.reply_token,
+                date_picker2
+            )
 
 
 @handler.add(MessageEvent, message=TextMessage)
@@ -428,10 +428,11 @@ def handle_message(event):
                     ]
                 )
             )
-        line_bot_api.reply_message(
-            event.reply_token,
-            date_picker1
-        )
+            line_bot_api.reply_message(
+                event.reply_token,
+                date_picker1
+            )
+        
     else:
         if (Journey.step == 1):
             line_bot_api.reply_message(
@@ -522,7 +523,7 @@ def testmain():
     mainRoutine(event = None,time=22800)
     return "API is succeed"
 
-
+## テスト用API
 @app.route("/getSpotDist/")
 def testmain2():
     # Userテーブルのnameカラムをすべて取得
