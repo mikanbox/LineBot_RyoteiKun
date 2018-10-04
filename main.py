@@ -606,13 +606,16 @@ def testmain():
     mainRoutine(event = None,time=22800)
     return "API is succeed"
 
+
 @app.route("/getSpotDist/")
-def testmain():
+def testmain2():
     # Userテーブルのnameカラムをすべて取得
     spotds = db.session.query(SpotDist).all()
     for spot in spotds:
         print(str(spot.id_from) + " - "+str(spot.id_to) + "  " + str(spot.time) )
     return "end"
+
+
 
 
 if __name__ == "__main__":
