@@ -356,14 +356,14 @@ def mainRoutine(event=0,time=0,pref='大阪'):
             if (j.name == i.name):
                 continue
 
-            # if (db.session.query(SpotDist).filter(SpotDist.id_from == i.id).filter(SpotDist.id_to == j.id).count() > 0 ):
-            #     r = db.session.query(SpotDist).filter(SpotDist.id_from == i.id).filter(SpotDist.id_to == j.id)
-            #     for r_elements in r:
-            #         Journey.timeEdge[i.name,j.name] = r_elements.time
-            #         Journey.timeEdge[j.name,i.name] = r_elements.time
-            #         print("Data is discovered")
+            if (db.session.query(SpotDist).filter(SpotDist.id_from == i.id).filter(SpotDist.id_to == j.id).count() > 0 ):
+                r = db.session.query(SpotDist).filter(SpotDist.id_from == i.id).filter(SpotDist.id_to == j.id)
+                for r_elements in r:
+                    Journey.timeEdge[i.name,j.name] = r_elements.time
+                    Journey.timeEdge[j.name,i.name] = r_elements.time
+                    print("Data is discovered")
 
-            #     continue
+                continue
 
             # if (db.session.query(SpotDist).filter(SpotDist.id_from == j.id).filter(SpotDist.id_to == i.id).count() > 0 ):
             #     r = db.session.query(SpotDist).filter(SpotDist.id_from == i.id).filter(SpotDist.id_to == j.id)
