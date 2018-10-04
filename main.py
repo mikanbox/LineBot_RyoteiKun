@@ -38,19 +38,17 @@ from linebot.models import (
     ImageSendMessage
 )
 
-import CallgoogleAPI
-import APIkey
+from CallgoogleAPI import *
+# import APIkey
 
 app = Flask(__name__)
 line_bot_api = LineBotApi(
     "iGl4or4uXfRGwd9w0dk8UoDMDWn4z7KGtjSMC67WkwzJERiD+FLHwIkEhLeRCXLwuSg4MVuIvoVCDoxPjsJ9azXNe5MTPhPTWwBpf8e+1uuSW/FCL38Naqb0hehsaIqdoDApewB07WrdMuIR0bWMvQdB04t89/1O/w1cDnyilFU=")
 handler = WebhookHandler('c9f4a586a8d8b03ce5f6008e79d1414e')
 
-
 # DB設定
 db_uri = "sqlite:///" + os.path.join(app.root_path, 'JouneySpot.db') # 追加
 db_uri = os.environ.get('DATABASE_URL') or "sqlite:///" + os.path.join(app.root_path, 'JouneySpot.db')
-
 
 
 app.config['SQLALCHEMY_DATABASE_URI'] = db_uri # 追加
