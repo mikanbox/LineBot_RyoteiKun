@@ -14,17 +14,10 @@ from bs4 import BeautifulSoup
 from flask_sqlalchemy import SQLAlchemy # 変更
 from sqlalchemy import *
 from sqlalchemy.orm import *
-
 sys.path.append('./vendor')
-
 from flask import Flask, request, abort, render_template
-
-from linebot import (
-    LineBotApi, WebhookHandler
-)
-from linebot.exceptions import (
-    InvalidSignatureError
-)
+from linebot import (LineBotApi, WebhookHandler)
+from linebot.exceptions import (InvalidSignatureError)
 from linebot.models import (
     MessageEvent, TextMessage, TextSendMessage,
     SourceUser, SourceGroup, SourceRoom,
@@ -39,18 +32,15 @@ from linebot.models import (
 )
 
 from CallgoogleAPI import *
-# import APIkey
+import APIkey
 
 app = Flask(__name__)
-line_bot_api = LineBotApi(
-    "iGl4or4uXfRGwd9w0dk8UoDMDWn4z7KGtjSMC67WkwzJERiD+FLHwIkEhLeRCXLwuSg4MVuIvoVCDoxPjsJ9azXNe5MTPhPTWwBpf8e+1uuSW/FCL38Naqb0hehsaIqdoDApewB07WrdMuIR0bWMvQdB04t89/1O/w1cDnyilFU=")
-handler = WebhookHandler('c9f4a586a8d8b03ce5f6008e79d1414e')
+line_bot_api = LineBotApi(APIkey.channel_access_token)
+handler = WebhookHandler(APIkey.channel_secret)
 
 # DB設定
 db_uri = "sqlite:///" + os.path.join(app.root_path, 'JouneySpot.db') # 追加
 db_uri = os.environ.get('DATABASE_URL') or "sqlite:///" + os.path.join(app.root_path, 'JouneySpot.db')
-
-
 app.config['SQLALCHEMY_DATABASE_URI'] = db_uri # 追加
 db = SQLAlchemy(app) # 追加
 
