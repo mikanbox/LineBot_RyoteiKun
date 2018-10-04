@@ -76,7 +76,7 @@ class Spot(db.Model):
 
 
 class SpotDist(db.Model):
-    __tablename__ = "spotDist" # 追加
+    __tablename__ = "spotdistance" # 追加
     id    = db.Column(db.Integer, primary_key=True,autoincrement=True) # 追加
     id_from     = db.Column(db.Integer()) # 追加
     id_to       = db.Column(db.Integer()) # 追加
@@ -566,7 +566,7 @@ def GetJaran():
     "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0",
     }
 
-    for number in range(1,47):
+    for number in range(1,15):
         print(str(number))
         # number = 47
         url = "https://www.jalan.net/kankou/"+'{0:02d}'.format(number)+"0000/"
