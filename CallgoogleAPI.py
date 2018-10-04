@@ -32,7 +32,7 @@ class MapRoute:
 
 def getGoogleMapDirection(route):
     # Goolge Map Direction API トークン
-    api_key = googleAPIkey
+    api_key = APIkey.googleAPIkey
     # Google Maps Direction API URL
     url = "https://maps.googleapis.com/maps/api/directions/json"
 
@@ -72,7 +72,7 @@ def getPointFromGoogleAPI(PlaceName):
     place_url = 'https://maps.googleapis.com/maps/api/place/textsearch/json'
     query = {'query': PlaceName,
             'language': 'ja',
-            'key': googleAPIkey}
+            'key': APIkey.googleAPIkey}
     s = requests.Session()
     s.headers.update({'Referer': 'www.monotalk.xyz/example'})
 
