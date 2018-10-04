@@ -417,7 +417,7 @@ def mainRoutine(event=0,time=0,pref='大阪'):
     #         txtarray)
     line_bot_api.reply_message(
     event.reply_token,
-    TextSendMessage(text='どこに行きたいですか？'+str(Journey.step)))
+    txtarray)
 
 
 
