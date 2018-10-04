@@ -264,14 +264,14 @@ def CreateResult(route, point):
     message = []
 
     message.append("いちばんおすすめのプランはこうだよ！")
-    message.append(Journey.StartTime)
+    # message.append(Journey.StartTime)
     mes = ""
     for i in range(len(jouneylist)):
         mes += jouneylist[i] + "  滞在:" + str(Journey.StayTime / 60) + "分くらい\n"
         if (i < len(jouneylist) - 1):
             mes += " ↓  移動:" + str(int(jouneyTime[i] / 60)) + "分くらい\n"
     message.append(mes)
-    message.append(Journey.EndTime)
+    # message.append(Journey.EndTime)
 
     # for st in message:
     #     print(st)
@@ -291,7 +291,6 @@ def getPathromGoogleAPI(fromplace,toplace):
         0]['duration']["value"]  # これで２点間を車移動したときの秒数が入る
 
     return duringtime
-
 
 
 def getPointFromGoogleAPI(PlaceName):
