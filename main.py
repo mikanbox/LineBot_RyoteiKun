@@ -609,7 +609,7 @@ def GetJaran():
 
 @app.route("/testMain/")
 def testmain():
-    mainRoutine(event = None)
+    mainRoutine(event = None,time=12800)
     return "API is succeed"
 
 
