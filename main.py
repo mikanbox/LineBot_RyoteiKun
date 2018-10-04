@@ -391,10 +391,10 @@ def handle_postback(event):
                 ]
             )
         )
-            line_bot_api.reply_message(
-                event.reply_token,
-                date_picker2
-            )
+        line_bot_api.reply_message(
+            event.reply_token,
+            date_picker2
+        )
 
 
 @handler.add(MessageEvent, message=TextMessage)
