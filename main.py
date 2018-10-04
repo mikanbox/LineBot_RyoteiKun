@@ -401,6 +401,7 @@ def mainRoutine(event=0,time=0,pref='大阪'):
     # #   返送用メッセージを生成
     # # ----------------------------------------------------------
     message = CreateResult(route, point)
+
     # # ----------------------------------------------------------
     # #   返送用Line構造体を生成
     # # ----------------------------------------------------------
@@ -410,13 +411,9 @@ def mainRoutine(event=0,time=0,pref='大阪'):
         txtarray.append(TextSendMessage(text=st))
 
     print("sendMessage")
-    # if (event !=None):
-    #     line_bot_api.reply_message(
-    #         event.reply_token,
-    #         txtarray)
-    line_bot_api.reply_message(
-    event.reply_token,
-    txtarray)
+    if (event !=None):
+            line_bot_api.reply_message(event.reply_token,txtarray)
+
 
 
 
@@ -570,7 +567,7 @@ def GetJaran():
     "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0",
     }
 
-    for number in range(1,47):
+    for number in range(30,47):
         print(str(number))
         # number = 47
         url = "https://www.jalan.net/kankou/"+'{0:02d}'.format(number)+"0000/"
