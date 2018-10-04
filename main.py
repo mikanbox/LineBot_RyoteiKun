@@ -392,7 +392,7 @@ def mainRoutine(event=0,time=0,pref='大阪'):
             Journey.PointValue[j, i] = Journey.PointValue[i, j]
 
 
-    Journey.StayTime = time
+    Journey.MaxTravelTime = time
     # # ----------------------------------------------------------
     # #   最適化問題の計算
     # # ----------------------------------------------------------
