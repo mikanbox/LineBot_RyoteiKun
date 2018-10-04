@@ -372,7 +372,7 @@ def handle_postback(event):
         print("maxTime")
         print(Journey.MaxTravelTime)
         # calcFirstJourneyData(event)
-        mainRoutine(event,time=28000,"大阪")
+        mainRoutine(event,22800,"大阪")
 
     if (Journey.step == 2):
         Journey.StartTime = event.postback.params["time"]
