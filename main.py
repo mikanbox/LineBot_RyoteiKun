@@ -581,6 +581,7 @@ def GetJaran():
         pref =""
         for p in prefName:
             pref = p.text[:-3]
+            print(pref)
         # DBに追加
         spots = list()
         for (s, sc) in zip(spotName, spotScore):
@@ -600,7 +601,8 @@ def GetJaran():
     for spot in spots:
         print(str(spot.id) + "   "+spot.name + "  " + str(spot.score) )
 
-    # return json.dumps(jsonData,ensure_ascii=False, indent=2)
+
+    return json.dumps(jsonData,ensure_ascii=False, indent=2)
 
 
 @app.route("/testMain/")
