@@ -1,3 +1,7 @@
+import requests
+import urllib
+import json
+
 # 位置座標クラス
 class MapCoordinate:
 
