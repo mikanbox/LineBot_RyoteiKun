@@ -12,6 +12,8 @@ URL
 
 
 ### herokuについて
+- dynoは30分以上トラフィックがないとsleepする
+
 ### log1
 - [参考資料](https://b-side.work/2017/02/heroku-and-git/)
 - [参考資料2](https://qiita.com/hirosat/items/39cd6ba954a451bc01b8)
@@ -41,7 +43,6 @@ URL
 - DBの導入
   - https://qiita.com/croquette0212/items/9b4dc5377e7d6f292671
   - Sqlアルケミーを利用してDBをオブジェクト管理
-
 
 - 観光地リストの自動取得
   - google検索 おすすめスポット api

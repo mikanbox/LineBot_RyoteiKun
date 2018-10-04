@@ -492,6 +492,10 @@ def handle_postback(event):
 def handle_message(event):
     text = event.message.text
 
+    if (text in "テスト起動"):
+        mainRoutine(event,12800,"大阪")
+
+
     if (text in "旅行"):
         Journey.step = 1
         line_bot_api.reply_message(
