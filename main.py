@@ -371,6 +371,8 @@ def mainRoutine(event=0,time=0,pref='大阪'):
             # i-jパスがない時
             spotdist = SpotDist()
             spotdist.time = getPathromGoogleAPI([i.lat,i.lng],[j.lat,j.lng])
+            spotdist.id_from = i.id
+            spotdist.id_to   = j.id
             db.session.add(spotdist)
             db.session.commit()
             Journey.timeEdge[i.name,j.name] = spotdist.time
