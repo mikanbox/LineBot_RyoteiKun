@@ -216,8 +216,9 @@ def CreateResult(route, point):
         if (point[i].value() == 1):
             pointCount+=1
     if (pointCount <= 1):  # 旅程が建てられない場合
-        return '可能なプランがありません！'
-
+        message = []
+        message.append("可能なプランがありません！")
+        return message
 
 
 
@@ -273,8 +274,6 @@ def CreateResult(route, point):
     message.append(mes)
     # message.append(Journey.EndTime)
 
-    # for st in message:
-    #     print(st)
     return message
 
 
@@ -313,26 +312,28 @@ def getPointFromGoogleAPI(PlaceName):
     location = json_start["results"][0]["geometry"]["location"]
     return float(location["lat"]),float(location["lng"])
 
+def InitDB():
+    Spot.metadata.create_all(bind = ENGINE)
+    SpotDist.metadata.create_all(bind = ENGINE)
+
 # -------------------------------------------
 # メインルーチン
 # -------------------------------------------
 def mainRoutine(event=0,time=0,pref='大阪'):
+    Journey.MaxTravelTime = time
     # ----------------------------------------------------------
     #   DB初期化
     # ----------------------------------------------------------
     InitDB()
-
     # ----------------------------------------------------------
     #   DBから要素取得とソート,GoogleAPIで位置取得
     # ----------------------------------------------------------
     spots = db.session.query(Spot).filter(Spot.pref == pref).order_by('score')
-
     for spot in spots:
         if (spot.lat == None):
             print(spot.name)
             spot.lat, spot.lng = getPointFromGoogleAPI(spot.name)
             db.session.commit()
-
     # # ----------------------------------------------------------
     # # BaseQueryオブジェクトから別のオブジェクトへ変更
     # # ----------------------------------------------------------
@@ -342,13 +343,6 @@ def mainRoutine(event=0,time=0,pref='大阪'):
             Journey.locationValue[spot.name] = spot.score
 
     Journey.location = random.sample(Journey.location,5)
-
-
-
-    # for spot in spots:
-    #     print(str(spot.id) + "   "+spot.name + "  " + str(spot.score) )
-    #     print("   lat:"+str(spot.lat) + "   lng:"+str(spot.lng) )
-
 
     # # ----------------------------------------------------------
     # #   i-jパスの設定
@@ -383,15 +377,16 @@ def mainRoutine(event=0,time=0,pref='大阪'):
             Journey.timeEdge[j.name,i.name] = spotdist.time
             print("Call DirectionAPI : " + i.name +"-"+ j.name +"   time: " +str(spotdist.time) )
 
-
-
+    # # ----------------------------------------------------------
+    # #   i-jコストの設定
+    # # ----------------------------------------------------------
     for i in Journey.location:
         for j in Journey.location:
             Journey.PointValue[i, j] = Journey.locationValue[i] + Journey.locationValue[j]
             Journey.PointValue[j, i] = Journey.PointValue[i, j]
 
 
-    Journey.MaxTravelTime = time
+
     # # ----------------------------------------------------------
     # #   最適化問題の計算
     # # ----------------------------------------------------------
@@ -418,9 +413,7 @@ def mainRoutine(event=0,time=0,pref='大阪'):
 
 
 
-def InitDB():
-    Spot.metadata.create_all(bind = ENGINE)
-    SpotDist.metadata.create_all(bind = ENGINE)
+
 
 
 # -------------------------------------------
@@ -533,10 +526,12 @@ def handle_message(event):
 
 
 
+# -------------------------------------------
+# バックエンド側API
+# -------------------------------------------
 @app.route("/")
 def hello():
     return "Hello World!"
-
 
 #公共クラウドシステムからデータ取得(未使用)
 @app.route("/getJourney/")
@@ -557,7 +552,6 @@ def helloDB():
 
     return json.dumps(jsonData,ensure_ascii=False, indent=2)
 
-
 #じゃらんからリストスクレイピングしてくる
 # 30秒のタイムアウトがある
 @app.route("/getSpotFromJaran/")
@@ -567,7 +561,7 @@ def GetJaran():
     "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:47.0) Gecko/20100101 Firefox/47.0",
     }
 
-    for number in range(30,47):
+    for number in range(1,47):
         print(str(number))
         # number = 47
         url = "https://www.jalan.net/kankou/"+'{0:02d}'.format(number)+"0000/"
@@ -606,12 +600,19 @@ def GetJaran():
 
     return "jaran"
 
-
 ## テスト用API
 @app.route("/testMain/")
 def testmain():
     mainRoutine(event = None,time=22800)
     return "API is succeed"
+
+@app.route("/getSpotDist/")
+def testmain():
+    # Userテーブルのnameカラムをすべて取得
+    spots = db.session.query(SpotDist).all()
+    for spot in spots:
+        print(str(spot.id_from) + " - "+str(spot.id_to) + "  " + str(spot.time) )
+    return spots
 
 
 if __name__ == "__main__":
