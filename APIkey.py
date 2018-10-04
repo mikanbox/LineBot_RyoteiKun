@@ -1,0 +1,2 @@
+global googleAPIkey
+googleAPIkey = "AIzaSyD9PKwDNyYQep3mw2M_cwUmWU3Kl9iNhRM"
