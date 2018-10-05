@@ -94,16 +94,28 @@ class Journey:
 def calcPath(location, e, c, time, stayTime=3600):
     # 最適化問題を解く
     problem = pulp.LpProblem('sample', pulp.LpMaximize)
-    x = {}  # 空の辞書
-    for i in location:
-        for j in location:
-            x[i, j] = pulp.LpVariable("x({:},{:})".format(i, j), 0, 1, pulp.LpInteger)
-    y = {}  # 空の辞書
-    for i in location:
-        y[i] = pulp.LpVariable("y({:})".format(i), 0, 1, pulp.LpInteger)
+    
+    # -------------------------------------------
+    # 決定変数定義
+    # -------------------------------------------   
+    x = { (i, j) :pulp.LpVariable("x({:},{:})".format(i, j), 0, 1, pulp.LpInteger) for i in location for j in location}
+    y = { i : pulp.LpVariable("y({:})".format(i), 0, 1, pulp.LpInteger) for i in location}
+    # x = {}  # 空の辞書
+    # for i in location:
+    #     for j in location:
+    #         x[i, j] = pulp.LpVariable("x({:},{:})".format(i, j), 0, 1, pulp.LpInteger)
+    # y = {}  # 空の辞書
+    # for i in location:
+    #     y[i] = pulp.LpVariable("y({:})".format(i), 0, 1, pulp.LpInteger)
 
+    # -------------------------------------------
+    # 目的関数設定
+    # -------------------------------------------   
     problem += pulp.lpSum(c[i, j] * x[i, j] for i in location for j in location), "TotalCost"
 
+    # -------------------------------------------
+    # 制約式
+    # -------------------------------------------   
     problem += sum(x[i, j] for i in location for j in location) + \
         sum(y[i] * stayTime for i in location) <= time, "Constraint_leq"
 
@@ -129,6 +141,10 @@ def calcPath(location, e, c, time, stayTime=3600):
 
     problem += sum(y[i] for i in location) - sum(x[i, j]
                                                  for i in location for j in location) == 1, "Constraint_eq2"
+
+    # -------------------------------------------
+    # pulpを用いた求解
+    # -------------------------------------------  
 
     status = problem.solve()
     # print("Status", pulp.LpStatus[status])
@@ -172,46 +188,34 @@ def CreateResult(route, point):
 
 
     # -------------------------------------------
-    # edge初期化(内包) key:value if for
+    # edge初期化,代入(内包) key:value if for
     # -------------------------------------------   
-    # edge = {}
-    # for i in Journey.location:
-    #     for j in Journey.location:
-    #         edge[i, j] = 0
-    # edge = {[i, j]:0 for i in Journey.location for j in Journey.location}
     edge = { (i, j) :1 if route[i, j].value() == 1 or route[j, i].value() == 1 else 0 for i in Journey.location for j in Journey.location}
-    # -------------------------------------------
-    # edge代入
-    # -------------------------------------------   
-    # for i in Journey.location:
-    #     for j in Journey.location:
-    #         if (route[i, j].value() == 1):
-    #             edge[i, j] = 1
-    #             edge[j, i] = 1
+
 
     # -------------------------------------------
     # スタートの特定:[i-j]が端点ならcount=2
     # -------------------------------------------   
     count = {i:0 for i in Journey.location}
-    # for i in Journey.location:
-    #     count[i] = 0
     for i in Journey.location:
         for j in Journey.location:
             if (edge[i, j] == 1):
                 count[i] += 1
                 count[j] += 1
 
+    # -------------------------------------------
+    # 全部回れちゃう場合に問題起きる →　定式化を改善する必要がるが、応急処置
+    # -------------------------------------------  
     startLocation = 0
     LastLocation = 0
     for i in Journey.location:
         if (count[i] == 2):
             startLocation = i
             LastLocation = i
+    if (startLocation ==0):
+        startLocation = Journey.location[0]
+        LastLocation = startLocation
 
-    for k, v in edge.items():
-        print(k, v)
-    for i in Journey.location:
-        print(i)
 
     # -------------------------------------------
     # スタートより旅程リストを生成
@@ -232,7 +236,7 @@ def CreateResult(route, point):
 
 
     message = []
-    message.append("いちばんおすすめのプランはこうだよ！")
+    message.append("おすすめのプランはこうだよ！")
     # message.append(Journey.StartTime)
     mes = ""
     for i in range(len(jouneylist)):
