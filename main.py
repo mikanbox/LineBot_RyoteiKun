@@ -189,7 +189,7 @@ def CreateResult(route, point):
     # -------------------------------------------
     # edge初期化,代入(内包) key:value if for
     # -------------------------------------------   
-    edge = { (i, j) :1 if route[i, j].value() == 1 or route[j, i].value() == 1 else 0 for i in Journey.location for j in Journey.location}
+    edge = { (i, j) :0 for i in Journey.location for j in Journey.location}
     for i in Journey.location:
         for j in Journey.location:
             if route[i, j].value() == 1:
@@ -225,6 +225,7 @@ def CreateResult(route, point):
     # -------------------------------------------   
     jouneylist = []
     jouneyTime = []
+    count = 1;
     for s in range(len(Journey.location)):#スポットの回数やる（あってる？)
         for j in Journey.location:
             if (edge[startLocation, j] == 1 and LastLocation != j):#スタートからjが存在し,jは前にたどった点じゃないなら
@@ -233,19 +234,27 @@ def CreateResult(route, point):
 
                 LastLocation = startLocation
                 startLocation = j
+                count+=1
+            if ( count >= len(Journey.location)):
+                break
+        if ( count >= len(Journey.location)):
+            break
 
 
     jouneylist.append(startLocation)#最後に終点を追加
 
 
+    # -------------------------------------------
+    #文章設計
+    # -------------------------------------------   
     message = []
     message.append("おすすめのプランはこうだよ！")
     # message.append(Journey.StartTime)
     mes = ""
     for i in range(len(jouneylist)):
-        mes += jouneylist[i] + "\n  滞在:" + str(Journey.StayTime / 60) + "分くらい\n"
+        mes += "■"+jouneylist[i] + "\n滞在:" + str(Journey.StayTime / 60) + "分くらい\n"
         if (i < len(jouneylist) - 1):
-            mes += "\n ↓  移動:" + str(int(jouneyTime[i] / 60)) + "分くらい\n\n"
+            mes += "↓\n ↓  移動:" + str(int(jouneyTime[i] / 60)) + "分くらい\n↓\n"
     message.append(mes)
     # message.append(Journey.EndTime)
 
