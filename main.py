@@ -382,6 +382,13 @@ def getTime(text):
         return False
     return True
 
+def getStop(text):
+    for p in ['やめる','やめた','終了','止める','止めた']:
+        pattern = r".*" + p + r".*"
+        match = re.search(pattern, text)
+        if match:
+            return True #テキスト(県名)を返す
+    return False
 
 
 
@@ -456,17 +463,21 @@ def handle_message(event):
         mainRoutine(event,22800,"大阪")
         return True
 
+
+
     # 状態とテキストに応じて処理を記述
     if (Journey.NowState == 'listen_word'):
         if (getJourney(text)):
             Journey.NowState = 'listen_pref_plan'
-        # if () //スポット登録
+    # if () //スポット登録
 
     if (Journey.NowState == 'listen_pref_plan'):
         if (getPref(text)):
             Journey.pref = getPref(text)
             Journey.NowState = 'listen_time_plan'
-
+    # やっぱやめる場合
+    if (getStop(text)):
+        Journey.NowState = 'listen_word'
 
 
 
