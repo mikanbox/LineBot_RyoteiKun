@@ -121,25 +121,20 @@ def calcPath(location, e, c, time, stayTime=3600):
     for i in location:
         for j in location:
             if i == j:
-                problem += x[i, j] * \
-                    2 <= 1, "Constraint_leq_{:}_{:}".format(i, j)
+                problem += x[i, j] * 2 <= 1, "Constraint_leq_{:}_{:}".format(i, j)
             continue
-            problem += sum(x[i, j] + x[j, i]
-                           ) <= 1, "Constraint_leq_{:}_{:}".format(i, j)
+            problem += sum(x[i, j] + x[j, i]) <= 1, "Constraint_leq_{:}_{:}".format(i, j)
 
     for i in location:
         problem += x[i, i] == 0, "Constraint_node_eq{:}".format(i)
 
     for i in location:
-        problem += sum(x[i, j] + x[j, i]
-                       for j in location) <= 2, "Constraint_node_{:}".format(i)
+        problem += sum(x[i, j] + x[j, i] for j in location) <= 2, "Constraint_node_{:}".format(i)
 
     for i in location:
-        problem += sum(x[i, j]
-                       for j in location) <= y[i], "Constraint_node_y_{:}".format(i)
+        problem += sum(x[i, j] for j in location) <= y[i], "Constraint_node_y_{:}".format(i)
 
-    problem += sum(y[i] for i in location) - sum(x[i, j]
-                                                 for i in location for j in location) == 1, "Constraint_eq2"
+    problem += sum(y[i] for i in location) - sum(x[i, j] for i in location for j in location) == 1, "Constraint_eq2"
 
     # -------------------------------------------
     # pulpを用いた求解
@@ -164,9 +159,11 @@ def calcPath(location, e, c, time, stayTime=3600):
 # 計算結果を解析しテキストを生成:(routeはエッジ,ポイントは点)
 # -------------------------------------------
 def CreateResult(route, point):
+    print("\n ノード \n")
     for i in Journey.location:
         if (point[i].value() == 1):
             print(i)
+    print("\n パス \n")
     for i in Journey.location:
         for j in Journey.location:
             if (route[i, j].value() == 1):
@@ -254,7 +251,7 @@ def CreateResult(route, point):
     for i in range(len(jouneylist)):
         mes += "■"+jouneylist[i] + "\n滞在:" + str(Journey.StayTime / 60) + "分くらい\n"
         if (i < len(jouneylist) - 1):
-            mes += "↓\n ↓  移動:" + str(int(jouneyTime[i] / 60)) + "分くらい\n↓\n"
+            mes += "↓\n↓  移動:" + str(int(jouneyTime[i] / 60)) + "分くらい\n↓\n"
     message.append(mes)
     # message.append(Journey.EndTime)
 
@@ -366,6 +363,28 @@ def mainRoutine(event=0,time=0,pref='大阪'):
     if (event !=None):
             line_bot_api.reply_message(event.reply_token,txtarray)
 
+    Journey.NowState = 'listen_word'
+
+
+
+# def AddSpot(event=0,text):
+
+
+
+#     spot.lat, spot.lng = getPointFromGoogleAPI(spot.name)
+#     #もしgoogleで検索できたら,,,
+#     # DBに追加
+#     spots = list()
+#     for (s, sc) in zip(spotName, spotScore):
+#         if (db.session.query(Spot).filter(Spot.name == s.text).count() > 0):
+#             continue
+#         spot = Spot()
+#         spot.name =s.text
+#         spot.pref = pref
+#         spot.score = float(sc.text)
+#         spots.append(spot)
+#     db.session.add_all(spots)
+#     db.session.commit()
 
 
 # -------------------------------------------
@@ -441,7 +460,7 @@ def handle_postback(event):
         dt2 = datetime.datetime.strptime(Journey.EndTime, '%H:%M')
         input_time2 = dt2.time()
         Journey.MaxTravelTime = (dt2 - dt1).total_seconds()        
-        mainRoutine(event,32800,"大阪")
+        mainRoutine(event,32800,Journey.pref)
 
     if (Journey.step == 2):
         Journey.StartTime = event.postback.params["time"]
@@ -471,17 +490,29 @@ def handle_message(event):
     print("GetTextMessage\n\n\n\n")
     text = event.message.text
 
-    
+    # -------------------------------------------
+    # テスト用
+    # -------------------------------------------
+    if (text in "フレークサンプル"):
+        sampleFlake(event)
+        return True
     if (text in "テスト起動"):
         mainRoutine(event,22800,"大阪")
         return True
 
 
 
+
+
+    # -------------------------------------------
     # 状態とテキストに応じて処理を記述
+    # -------------------------------------------
+    IsConversation = False
     if (Journey.NowState == 'listen_word'):
         if (getJourney(text)):
             Journey.NowState = 'listen_pref_plan'
+        else:
+            IsConversation = True
     # if () //スポット登録
 
     if (Journey.NowState == 'listen_pref_plan'):
@@ -495,11 +526,14 @@ def handle_message(event):
 
 
 
-
+    # -------------------------------------------
     # 状態に応じて返信メッセージを記述
+    # -------------------------------------------
     if (Journey.NowState == 'listen_word'):
-        line_bot_api.reply_message(event.reply_token,
-            TextSendMessage(text='なにがしたい〜？'))
+        # 雑談フラグ作って、それが1なら返す
+        if IsConversation:
+            line_bot_api.reply_message(event.reply_token,
+                TextSendMessage(text='なにがしたい〜？'))
     elif (Journey.NowState =='listen_pref_plan'):
         line_bot_api.reply_message(event.reply_token,
             TextSendMessage(text='どこにいきたい？'))
@@ -561,6 +595,113 @@ def handle_message(event):
     #             TextSendMessage(text='行きたい場所を教えてください'+str(Journey.step)))
 
 
+def sampleFlake(event):
+    bubble = BubbleContainer(
+                direction='ltr',
+                hero=ImageComponent(
+                    url='https://example.com/cafe.jpg',
+                    size='full',
+                    aspect_ratio='20:13',
+                    aspect_mode='cover',
+                    action=URIAction(uri='http://example.com', label='label')
+                ),
+                body=BoxComponent(
+                    layout='vertical',
+                    contents=[
+                        # title
+                        TextComponent(text='Brown Cafe', weight='bold', size='xl'),
+                        # review
+                        BoxComponent(
+                            layout='baseline',
+                            margin='md',
+                            contents=[
+                                IconComponent(size='sm', url='https://example.com/gold_star.png'),
+                                IconComponent(size='sm', url='https://example.com/grey_star.png'),
+                                IconComponent(size='sm', url='https://example.com/gold_star.png'),
+                                IconComponent(size='sm', url='https://example.com/gold_star.png'),
+                                IconComponent(size='sm', url='https://example.com/grey_star.png'),
+                                TextComponent(text='4.0', size='sm', color='#999999', margin='md',
+                                              flex=0)
+                            ]
+                        ),
+                        # info
+                        BoxComponent(
+                            layout='vertical',
+                            margin='lg',
+                            spacing='sm',
+                            contents=[
+                                BoxComponent(
+                                    layout='baseline',
+                                    spacing='sm',
+                                    contents=[
+                                        TextComponent(
+                                            text='Place',
+                                            color='#aaaaaa',
+                                            size='sm',
+                                            flex=1
+                                        ),
+                                        TextComponent(
+                                            text='Shinjuku, Tokyo',
+                                            wrap=True,
+                                            color='#666666',
+                                            size='sm',
+                                            flex=5
+                                        )
+                                    ],
+                                ),
+                                BoxComponent(
+                                    layout='baseline',
+                                    spacing='sm',
+                                    contents=[
+                                        TextComponent(
+                                            text='Time',
+                                            color='#aaaaaa',
+                                            size='sm',
+                                            flex=1
+                                        ),
+                                        TextComponent(
+                                            text="10:00 - 23:00",
+                                            wrap=True,
+                                            color='#666666',
+                                            size='sm',
+                                            flex=5,
+                                        ),
+                                    ],
+                                ),
+                            ],
+                        )
+                    ],
+                ),
+                footer=BoxComponent(
+                    layout='vertical',
+                    spacing='sm',
+                    contents=[
+                        # callAction, separator, websiteAction
+                        SpacerComponent(size='sm'),
+                        # callAction
+                        ButtonComponent(
+                            style='link',
+                            height='sm',
+                            action=URIAction(label='CALL', uri='tel:000000'),
+                        ),
+                        # separator
+                        SeparatorComponent(),
+                        # websiteAction
+                        ButtonComponent(
+                            style='link',
+                            height='sm',
+                            action=URIAction(label='WEBSITE', uri="https://example.com")
+                        )
+                    ]
+                ),
+            )
+
+
+    message = FlexSendMessage(alt_text="hello", contents=bubble)
+    line_bot_api.reply_message(
+        event.reply_token,
+        message
+    )
 
 
 
