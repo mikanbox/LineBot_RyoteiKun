@@ -88,7 +88,9 @@ class Journey:
 
 
 
-
+# -------------------------------------------
+# pilpを用いて数理最適化を行う
+# -------------------------------------------
 def calcPath(location, e, c, time, stayTime=3600):
     # 最適化問題を解く
     problem = pulp.LpProblem('sample', pulp.LpMaximize)
@@ -129,20 +131,23 @@ def calcPath(location, e, c, time, stayTime=3600):
                                                  for i in location for j in location) == 1, "Constraint_eq2"
 
     status = problem.solve()
-    print("Status", pulp.LpStatus[status])
-    print(problem)
-    print("Result")
+    # print("Status", pulp.LpStatus[status])
+    # print(problem)
+    # print("Result")
 
-    for i in Journey.location:
-        for j in Journey.location:
-            print(x[i, j], x[i, j].value())
+    # for i in Journey.location:
+    #     for j in Journey.location:
+    #         print(x[i, j], x[i, j].value())
 
-    for i in Journey.location:
-        print(y[i], y[i].value())
+    # for i in Journey.location:
+    #     print(y[i], y[i].value())
 
     return x, y
 
 
+# -------------------------------------------
+# 計算結果を解析しテキストを生成:(routeはエッジ,ポイントは点)
+# -------------------------------------------
 def CreateResult(route, point):
     for i in Journey.location:
         if (point[i].value() == 1):
@@ -156,25 +161,40 @@ def CreateResult(route, point):
     for i in Journey.location:
         if (point[i].value() == 1):
             pointCount+=1
+
+    # -------------------------------------------
+    # 旅程が建てられないとき
+    # -------------------------------------------    
     if (pointCount <= 1):  # 旅程が建てられない場合
         message = []
         message.append("可能なプランがありません！")
         return message
 
 
+    # -------------------------------------------
+    # edge初期化(内包) key:value if for
+    # -------------------------------------------   
+    # edge = {}
+    # for i in Journey.location:
+    #     for j in Journey.location:
+    #         edge[i, j] = 0
+    # edge = {[i, j]:0 for i in Journey.location for j in Journey.location}
+    edge = {[i, j]:1 if route[i, j].value() == 1 or route[j, i].value() == 1 else 0 for i in Journey.location for j in Journey.location}
+    # -------------------------------------------
+    # edge代入
+    # -------------------------------------------   
+    # for i in Journey.location:
+    #     for j in Journey.location:
+    #         if (route[i, j].value() == 1):
+    #             edge[i, j] = 1
+    #             edge[j, i] = 1
 
-    edge = {}
-    for i in Journey.location:
-        for j in Journey.location:
-            edge[i, j] = 0
-    for i in Journey.location:
-        for j in Journey.location:
-            if (route[i, j].value() == 1):
-                edge[i, j] = 1
-                edge[j, i] = 1
-    count = {}
-    for i in Journey.location:
-        count[i] = 0
+    # -------------------------------------------
+    # スタートの特定:[i-j]が端点ならcount=2
+    # -------------------------------------------   
+    count = {i:0 for i in Journey.location}
+    # for i in Journey.location:
+    #     count[i] = 0
     for i in Journey.location:
         for j in Journey.location:
             if (edge[i, j] == 1):
@@ -183,28 +203,31 @@ def CreateResult(route, point):
 
     startLocation = 0
     LastLocation = 0
-
     for i in Journey.location:
         if (count[i] == 2):
             startLocation = i
             LastLocation = i
 
+
+    # -------------------------------------------
+    # スタートより旅程リストを生成
+    # -------------------------------------------   
     jouneylist = []
     jouneyTime = []
-    for s in range(len(Journey.location)):
+    for s in range(len(Journey.location)):#スポットの回数やる（あってる？)
         for j in Journey.location:
-            if (edge[startLocation, j] == 1 and LastLocation != j):
+            if (edge[startLocation, j] == 1 and LastLocation != j):#スタートからjが存在し,jは前にたどった点じゃないなら
                 jouneyTime.append(Journey.timeEdge[startLocation, j])
                 jouneylist.append(startLocation)
+
                 LastLocation = startLocation
                 startLocation = j
-    jouneylist.append(startLocation)
 
-    print(jouneylist)
-    print(jouneyTime)
+
+    jouneylist.append(startLocation)#最後に終点を追加
+
 
     message = []
-
     message.append("いちばんおすすめのプランはこうだよ！")
     # message.append(Journey.StartTime)
     mes = ""
@@ -216,8 +239,6 @@ def CreateResult(route, point):
     # message.append(Journey.EndTime)
 
     return message
-
-
 
 
 def InitDB():
@@ -327,6 +348,30 @@ def mainRoutine(event=0,time=0,pref='大阪'):
 
 
 
+# -------------------------------------------
+# regexによる言語処理
+# -------------------------------------------
+def getJourney(text):
+    Key = "旅行"
+    match = re.search(Key, text)
+    if not match:
+        return False
+    return True
+
+def getPref(text):
+    Key = "[^#]##[^#]"
+    match = re.search(Key, text)
+    if not match:
+        return False
+    return True
+
+def getTime(text):
+    Key = "[^#]##[^#]"
+    match = re.search(Key, text)
+    if not match:
+        return False
+    return True
+
 
 
 
@@ -365,15 +410,8 @@ def handle_postback(event):
         input_time1 = dt1.time()
         dt2 = datetime.datetime.strptime(Journey.EndTime, '%H:%M')
         input_time2 = dt2.time()
-        Journey.MaxTravelTime = (dt2 - dt1).total_seconds()
-
-        print(Journey.StartTime)
-        print(Journey.EndTime)
-
-        print("maxTime")
-        print(Journey.MaxTravelTime)
-        # calcFirstJourneyData(event)
-        mainRoutine(event,22800,"大阪")
+        Journey.MaxTravelTime = (dt2 - dt1).total_seconds()        
+        mainRoutine(event,32800,"大阪")
 
     if (Journey.step == 2):
         Journey.StartTime = event.postback.params["time"]
