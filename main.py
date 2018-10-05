@@ -179,7 +179,7 @@ def CreateResult(route, point):
     #     for j in Journey.location:
     #         edge[i, j] = 0
     # edge = {[i, j]:0 for i in Journey.location for j in Journey.location}
-    edge = {i, j:1 if route[i, j].value() == 1 or route[j, i].value() == 1 else 0 for i in Journey.location for j in Journey.location}
+    edge = { (i, j) :1 if route[i, j].value() == 1 or route[j, i].value() == 1 else 0 for i in Journey.location for j in Journey.location}
     # -------------------------------------------
     # edge代入
     # -------------------------------------------   
