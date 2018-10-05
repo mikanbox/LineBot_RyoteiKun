@@ -190,7 +190,11 @@ def CreateResult(route, point):
     # edge初期化,代入(内包) key:value if for
     # -------------------------------------------   
     edge = { (i, j) :1 if route[i, j].value() == 1 or route[j, i].value() == 1 else 0 for i in Journey.location for j in Journey.location}
-
+    for i in Journey.location:
+        for j in Journey.location:
+            if route[i, j].value() == 1:
+                edge[i,j] = 1
+                edge[j,i] = 1
 
     # -------------------------------------------
     # スタートの特定:[i-j]が端点ならcount=2
