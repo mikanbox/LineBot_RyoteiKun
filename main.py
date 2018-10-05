@@ -472,13 +472,13 @@ def handle_message(event):
 
 
     # 状態に応じて返信メッセージを記述
-    if (NowState = 'listen_word'):
+    if (NowState == 'listen_word'):
         line_bot_api.reply_message(event.reply_token,
             TextSendMessage(text='なにがしたい〜？'))
-    elif (NowState = 'listen_pref_plan'):
+    elif (NowState =='listen_pref_plan'):
         line_bot_api.reply_message(event.reply_token,
             TextSendMessage(text='どこにいきたい？'))
-    elif (NowState = 'listen_time_plan'):
+    elif (NowState =='listen_time_plan'):
         Journey.step = 2
         date_picker1 = TemplateSendMessage(
             alt_text='開始時間を設定',
