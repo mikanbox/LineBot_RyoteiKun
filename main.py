@@ -208,6 +208,8 @@ def CreateResult(route, point):
             startLocation = i
             LastLocation = i
 
+    for k, v in edge.items():
+        print(k, v)
 
     # -------------------------------------------
     # スタートより旅程リストを生成
