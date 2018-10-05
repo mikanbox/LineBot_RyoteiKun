@@ -51,6 +51,7 @@ ENGINE = create_engine(
 )
 
 
+Pref_List = ['北海道','青森','岩手','宮城','秋田','山形','福島','栃木','群馬','茨城','埼玉','千葉','東京','神奈川','山梨','長野','新潟','富山','石川','福井','静岡','岐阜','愛知','三重','滋賀','京都','大阪','兵庫','奈良','和歌山','鳥取','島根','岡山','広島','山口','徳島','香川','愛媛','高知','福岡','佐賀','長崎','熊本','大分','宮崎','鹿児島','沖縄']
 
 # DBデータ定義
 class Spot(db.Model):
@@ -76,6 +77,7 @@ class SpotDist(db.Model):
 
 class Journey:
     step = 0
+    pref = ""
     # location = ['大阪城', '通天閣', '万博公園', 'スパワールド', '大阪大学', 'ポンポン山']  # 拠点名
     location = []
     locationValue = {}
@@ -87,6 +89,10 @@ class Journey:
     EndTime = ""
 
 
+# #状態の定義
+states=['listen_word', 'listen_pref_plan', 'listen_time_plan','exec_plan', 'listen_spot_register','exec_register']
+NowState = 'listen_word'
+
 
 # -------------------------------------------
 # pilpを用いて数理最適化を行う
@@ -94,19 +100,12 @@ class Journey:
 def calcPath(location, e, c, time, stayTime=3600):
     # 最適化問題を解く
     problem = pulp.LpProblem('sample', pulp.LpMaximize)
-    
+
     # -------------------------------------------
     # 決定変数定義
     # -------------------------------------------   
     x = { (i, j) :pulp.LpVariable("x({:},{:})".format(i, j), 0, 1, pulp.LpInteger) for i in location for j in location}
     y = { i : pulp.LpVariable("y({:})".format(i), 0, 1, pulp.LpInteger) for i in location}
-    # x = {}  # 空の辞書
-    # for i in location:
-    #     for j in location:
-    #         x[i, j] = pulp.LpVariable("x({:},{:})".format(i, j), 0, 1, pulp.LpInteger)
-    # y = {}  # 空の辞書
-    # for i in location:
-    #     y[i] = pulp.LpVariable("y({:})".format(i), 0, 1, pulp.LpInteger)
 
     # -------------------------------------------
     # 目的関数設定
@@ -240,9 +239,9 @@ def CreateResult(route, point):
     # message.append(Journey.StartTime)
     mes = ""
     for i in range(len(jouneylist)):
-        mes += jouneylist[i] + "  滞在:" + str(Journey.StayTime / 60) + "分くらい\n"
+        mes += jouneylist[i] + "\n  滞在:" + str(Journey.StayTime / 60) + "分くらい\n"
         if (i < len(jouneylist) - 1):
-            mes += " ↓  移動:" + str(int(jouneyTime[i] / 60)) + "分くらい\n"
+            mes += "\n ↓  移動:" + str(int(jouneyTime[i] / 60)) + "分くらい\n\n"
     message.append(mes)
     # message.append(Journey.EndTime)
 
@@ -268,7 +267,7 @@ def mainRoutine(event=0,time=0,pref='大阪'):
     spots = db.session.query(Spot).filter(Spot.pref == pref).order_by('score')
     for spot in spots:
         if (spot.lat == None):
-            print(spot.name)
+            print(spot.name+" : 新規追加操作")
             spot.lat, spot.lng = getPointFromGoogleAPI(spot.name)
             db.session.commit()
     # # ----------------------------------------------------------
@@ -360,19 +359,22 @@ def mainRoutine(event=0,time=0,pref='大阪'):
 # regexによる言語処理
 # -------------------------------------------
 def getJourney(text):
-    Key = "旅行"
-    match = re.search(Key, text)
+    pattern = r".*旅行.*"
+    match = re.search(pattern, text)
     if not match:
         return False
     return True
 
 def getPref(text):
-    Key = "[^#]##[^#]"
-    match = re.search(Key, text)
-    if not match:
-        return False
-    return True
+    for p in Pref_List:
+        # rをつけるとエスケープシーケンスが無向に
+        pattern = r".*" + p + r".*"
+        match = re.search(pattern, text)
+        if match:
+            return match.group() #テキスト(県名)を返す
+    return False
 
+# 何時から何時まで？
 def getTime(text):
     Key = "[^#]##[^#]"
     match = re.search(Key, text)
@@ -449,42 +451,89 @@ def handle_message(event):
     print("GetTextMessage\n\n\n\n")
     text = event.message.text
 
+    
     if (text in "テスト起動"):
         mainRoutine(event,22800,"大阪")
 
+    # 状態とテキストに応じて処理を記述
+    if (NowState == 'listen_word'):
+        if (getJourney(text)):
+            NowState = 'listen_pref_plan'
+        # if () //スポット登録
 
-    if (text in "旅行"):
-        Journey.step = 1
+    if (NowState == 'listen_pref_plan'):
+        if (getPref(text)):
+            Journey.pref = getPref(text)
+            NowState = 'listen_time_plan'
+
+
+
+
+
+
+    # 状態に応じて返信メッセージを記述
+    if (NowState = 'listen_word'):
+        line_bot_api.reply_message(event.reply_token,
+            TextSendMessage(text='なにがしたい〜？'))
+    elif (NowState = 'listen_pref_plan'):
+        line_bot_api.reply_message(event.reply_token,
+            TextSendMessage(text='どこにいきたい？'))
+    elif (NowState = 'listen_time_plan'):
+        Journey.step = 2
+        date_picker1 = TemplateSendMessage(
+            alt_text='開始時間を設定',
+            template=ButtonsTemplate(
+                text='開始時間を設定'+str(Journey.step),
+                title='hh--mm',
+                actions=[
+                    DatetimePickerTemplateAction(
+                        label='設定',
+                        data='action=buy&itemid=1',
+                        mode='time'
+                    )
+                ]
+            )
+        )
         line_bot_api.reply_message(
             event.reply_token,
-            TextSendMessage(text='どこに行きたいですか？'+str(Journey.step)))
+            date_picker1
+        )
 
-    if (text in "大阪"):
-        if (Journey.step == 1):
-            Journey.step = 2
-            date_picker1 = TemplateSendMessage(
-                alt_text='開始時間を設定',
-                template=ButtonsTemplate(
-                    text='開始時間を設定'+str(Journey.step),
-                    title='hh--mm',
-                    actions=[
-                        DatetimePickerTemplateAction(
-                            label='設定',
-                            data='action=buy&itemid=1',
-                            mode='time'
-                        )
-                    ]
-                )
-            )
-            line_bot_api.reply_message(
-                event.reply_token,
-                date_picker1
-            )
-    else:
-        if (Journey.step == 1 and text not in "旅行"):
-            line_bot_api.reply_message(
-                event.reply_token,
-                TextSendMessage(text='行きたい場所を教えてください'+str(Journey.step)))
+
+
+
+    # if (text in "旅行"):
+    #     Journey.step = 1
+    #     line_bot_api.reply_message(
+    #         event.reply_token,
+    #         TextSendMessage(text='どこに行きたいですか？'+str(Journey.step)))
+
+    # if (text in "大阪"):
+    #     if (Journey.step == 1):
+    #         Journey.step = 2
+    #         date_picker1 = TemplateSendMessage(
+    #             alt_text='開始時間を設定',
+    #             template=ButtonsTemplate(
+    #                 text='開始時間を設定'+str(Journey.step),
+    #                 title='hh--mm',
+    #                 actions=[
+    #                     DatetimePickerTemplateAction(
+    #                         label='設定',
+    #                         data='action=buy&itemid=1',
+    #                         mode='time'
+    #                     )
+    #                 ]
+    #             )
+    #         )
+    #         line_bot_api.reply_message(
+    #             event.reply_token,
+    #             date_picker1
+    #         )
+    # else:
+    #     if (Journey.step == 1 and text not in "旅行"):
+    #         line_bot_api.reply_message(
+    #             event.reply_token,
+    #             TextSendMessage(text='行きたい場所を教えてください'+str(Journey.step)))
 
 
 
@@ -537,10 +586,12 @@ def GetJaran():
         prefName = doc.xpath('//*[@id="topicpath"]/ol/li[3]')
         spotName = doc.xpath('//*[@id="cassetteType"]/li/div/div[2]/p[1]/a')
         spotScore = doc.xpath('//*[@id="cassetteType"]/li/div/div[2]/div[3]/span[2]')
+        prefname2 = doc.xpath('//*[@id="contentsListHeader"]/div/h1')
+
 
         pref =""
-        for p in prefName:
-            pref = p.text[:-3]
+        for p in prefname2:
+            pref = p.text[:-7]
             print(pref)
         # DBに追加
         spots = list()
