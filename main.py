@@ -87,11 +87,11 @@ class Journey:
     StayTime = 3600
     StartTime = ""
     EndTime = ""
+    NowState ='listen_word'
 
 
 # #状態の定義
 states=['listen_word', 'listen_pref_plan', 'listen_time_plan','exec_plan', 'listen_spot_register','exec_register']
-NowState = 'listen_word'
 
 
 # -------------------------------------------
@@ -454,17 +454,18 @@ def handle_message(event):
     
     if (text in "テスト起動"):
         mainRoutine(event,22800,"大阪")
+        return True
 
     # 状態とテキストに応じて処理を記述
-    if (NowState == 'listen_word'):
+    if (Journey.NowState == 'listen_word'):
         if (getJourney(text)):
-            NowState = 'listen_pref_plan'
+            Journey.NowState = 'listen_pref_plan'
         # if () //スポット登録
 
-    if (NowState == 'listen_pref_plan'):
+    if (Journey.NowState == 'listen_pref_plan'):
         if (getPref(text)):
             Journey.pref = getPref(text)
-            NowState = 'listen_time_plan'
+            Journey.NowState = 'listen_time_plan'
 
 
 
@@ -472,13 +473,13 @@ def handle_message(event):
 
 
     # 状態に応じて返信メッセージを記述
-    if (NowState == 'listen_word'):
+    if (Journey.NowState == 'listen_word'):
         line_bot_api.reply_message(event.reply_token,
             TextSendMessage(text='なにがしたい〜？'))
-    elif (NowState =='listen_pref_plan'):
+    elif (Journey.NowState =='listen_pref_plan'):
         line_bot_api.reply_message(event.reply_token,
             TextSendMessage(text='どこにいきたい？'))
-    elif (NowState =='listen_time_plan'):
+    elif (Journey.NowState =='listen_time_plan'):
         Journey.step = 2
         date_picker1 = TemplateSendMessage(
             alt_text='開始時間を設定',
