@@ -210,6 +210,8 @@ def CreateResult(route, point):
 
     for k, v in edge.items():
         print(k, v)
+    for i in Journey.location:
+        print(i)
 
     # -------------------------------------------
     # スタートより旅程リストを生成
