@@ -474,7 +474,6 @@ def callback():
 def handle_postback(event):
     print("------------GetPostBackEvent------------\n\n\n\n")
     print(Journey.NowState)
-    # print(event)
 
     if (Journey.NowState =='listen_time_end'):
         Journey.EndTime = event.postback.params["time"]
@@ -482,8 +481,8 @@ def handle_postback(event):
         input_time1 = dt1.time()
         dt2 = datetime.datetime.strptime(Journey.EndTime, '%H:%M')
         input_time2 = dt2.time()
-        Journey.MaxTravelTime = (dt2 - dt1).total_seconds()        
-        mainRoutine(event,32800,Journey.pref)
+        Journey.MaxTravelTime = (dt2 - dt1).total_seconds()
+        mainRoutine(event,Journey.MaxTravelTime,Journey.pref)
 
     if (Journey.NowState == 'listen_time_start'):
         Journey.NowState = 'listen_time_end'
@@ -492,7 +491,7 @@ def handle_postback(event):
             alt_text='終了時間を設定',
             template=ButtonsTemplate(
                 text='hh - mm',
-                title='旅行開始時間を入力',
+                title='旅行終了時間を入力',
                 actions=[
                     DatetimePickerTemplateAction(
                         label='設定',
@@ -506,6 +505,7 @@ def handle_postback(event):
             event.reply_token,
             date_picker2
         )
+        print(Journey.NowState)
 
 
 @handler.add(MessageEvent, message=TextMessage)
