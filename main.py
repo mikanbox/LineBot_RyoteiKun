@@ -486,6 +486,7 @@ def handle_message(event):
     text = event.message.text
     user_id = str(event.source.user_id)
 
+    NowState='listen_word'
 
     print("------------GetTextMessage------------\n\n\n\n")
     print(user_id)
@@ -493,9 +494,9 @@ def handle_message(event):
     if (db.session.query(UserState).filter(UserState.user_id == user_id ).count() > 0 ):
         users = db.session.query(UserState).filter(UserState.user_id == user_id)
         for user in users:
-            Journey.NowState = user.state
+            NowState = user.state
 
-    print(Journey.NowState)
+    print(NowState)
 
 
     # -------------------------------------------
@@ -514,7 +515,7 @@ def handle_message(event):
     # 状態とテキストに応じて処理を記述
     # -------------------------------------------
     IsConversation = False
-    if (Journey.NowState == 'listen_word'):
+    if (NowState == 'listen_word'):
         if (getJourney(text)):
             print("◆getJourney")
             Journey.NowState = 'listen_pref_plan'
@@ -522,7 +523,7 @@ def handle_message(event):
             IsConversation = True
 
 
-    if (Journey.NowState == 'listen_pref_plan'):
+    if (NowState == 'listen_pref_plan'):
         if (getPref(text) != False):
             print("◆getPref")
             Journey.pref = getPref(text)
@@ -530,7 +531,7 @@ def handle_message(event):
             Journey.NowState = 'listen_time_plan'
 
 
-    if (Journey.NowState == 'listen_time_plan'):
+    if (NowState == 'listen_time_plan'):
         if (getTime(text) != False):
             print("◆getTime")
             Journey.StartTime,Journey.EndTime = getTime(text)
@@ -542,23 +543,23 @@ def handle_message(event):
 
     if (getStop(text)):
         print("◆GetStop")
-        Journey.NowState = 'stop'
+        NowState = 'stop'
 
 
-    print(Journey.NowState)
+    print(NowState)
 
     # -------------------------------------------
     # 状態に応じて返信メッセージを記述
     # -------------------------------------------
-    if (Journey.NowState == 'listen_word'):
+    if (NowState == 'listen_word'):
         if IsConversation:# 雑談フラグ作って、それが1なら返す
             line_bot_api.reply_message(event.reply_token,TextSendMessage(text='なにがしたい〜？旅行って言ってくれたら計画立てるよ'))
-    elif (Journey.NowState =='listen_pref_plan'):
+    elif (.NowState =='listen_pref_plan'):
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='どの県にいきたい？'))
-    elif (Journey.NowState =='listen_time_plan'):
+    elif (NowState =='listen_time_plan'):
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='何時から何時まで？\n 「hh:mmm-hh:mm」の形や「〇〇時から〇〇時まで」の形で入力してね'))
-    elif (Journey.NowState == 'stop'):
-        Journey.NowState = 'listen_word'
+    elif (NowState == 'stop'):
+        NowState = 'listen_word'
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='計画を中止したよ'))
 
 
@@ -567,18 +568,18 @@ def handle_message(event):
     # ユーザーステートを反映
     # -------------------------------------------     
     if (db.session.query(UserState).filter(UserState.user_id == user_id).count() > 0 ):
-        print(updateState)
+        print("updateState")
         users = db.session.query(UserState).filter(UserState.user_id == user_id)
         for user in users:
-            Journey.NowState = user.state
+            NowState = user.state
     else:
         user = UserState()
         user.user_id = user_id
-        user.state = Journey.NowState
+        user.state = NowState
         db.session.add(user)
 
     db.session.commit()
-    print(Journey.NowState)
+    print(NowState)
 
 
 
