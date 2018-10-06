@@ -483,13 +483,13 @@ def callback():
 def handle_message(event):
     InitDB()
     text = event.message.text
-    user_id = event.source.user_id
+    user_id = str(event.source.user_id)
 
 
     print("------------GetTextMessage------------\n\n\n\n")
     print(user_id)
     print(text)
-    if (db.session.query(UserState).filter(UserState.user_id == user_id).count() > 0 ):
+    if (db.session.query(UserState).filter(UserState.user_id == user_id ).count() > 0 ):
         users = db.session.query(UserState).filter(UserState.user_id == user_id)
         for user in users:
             Journey.NowState = user.state
@@ -562,16 +562,16 @@ def handle_message(event):
     # -------------------------------------------
     # ユーザーステートを反映
     # -------------------------------------------     
-    if (db.session.query(UserState).filter(UserState.user_id == user_id).count() > 0 ):
-        users = db.session.query(UserState).filter(UserState.user_id == user_id)
-        for user in users:
-            Journey.NowState = user.state
-    else:
-        user = UserState()
-        user.user_id = user_id
-        user.state = Journey.NowState
-    db.session.commit()
-    print(Journey.NowState)
+    # if (db.session.query(UserState).filter(UserState.user_id == user_id).count() > 0 ):
+    #     users = db.session.query(UserState).filter(UserState.user_id == user_id)
+    #     for user in users:
+    #         Journey.NowState = user.state
+    # else:
+    #     user = UserState()
+    #     user.user_id = user_id
+    #     user.state = Journey.NowState
+    # db.session.commit()
+    # print(Journey.NowState)
 
 
 
@@ -762,10 +762,10 @@ def sampleFlake(event):
 # -------------------------------------------
 @app.route("/")
 def hello():
-    user = UserState()
-    user.user_id = "user_id"
-    user.state = "Journey.NowState"
-    db.session.commit()
+    # user = UserState()
+    # user.user_id = "user_id"
+    # user.state = "Journey.NowState"
+    # db.session.commit()
     return "Hello World!"
 
 #公共クラウドシステムからデータ取得(未使用)
