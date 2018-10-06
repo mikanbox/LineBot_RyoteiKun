@@ -78,6 +78,10 @@ class SpotDist(db.Model):
     time        = db.Column(db.Float()) # 追加
     searchTime  = db.Column(db.Float()) # 追加
 
+class UserState(db.Model):
+    __tablename__ = "user_state" # 追加
+    user_id    = db.Column(db.Integer, primary_key=True,autoincrement=True) # 追加
+    state      = db.Column(db.String(), nullable=False) # 追加
 
 class Journey:
     step = 0
@@ -91,7 +95,7 @@ class Journey:
     StayTime = 3600
     StartTime = ""
     EndTime = ""
-    NowState = ""
+    NowState = 'listen_word'
 
 
 # #状態の定義
@@ -265,6 +269,7 @@ def CreateResult(route, point):
 def InitDB():
     Spot.metadata.create_all(bind = ENGINE)
     SpotDist.metadata.create_all(bind = ENGINE)
+    UserState.metadata.create_all(bind = ENGINE)
 
 # -------------------------------------------
 # メインルーチン
@@ -476,11 +481,18 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
+    InitDB()
     print("------------GetTextMessage------------\n\n\n\n")
-    print(Journey.NowState)
-    
     text = event.message.text
+    user_id = event.source.user_id
     print(text)
+    if (db.session.query(UserState).filter(UserState.user_id == user_id).count() > 0 ):
+        users = db.session.query(UserState).filter(UserState.user_id == user_id)
+        for user in users:
+            Journey.NowState = user.state
+
+    print(Journey.NowState)
+
 
     # -------------------------------------------
     # テスト用
@@ -544,6 +556,20 @@ def handle_message(event):
     elif (Journey.NowState =='listen_time_plan'):
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='何時から何時まで？\n 「hh:mmm-hh:mm」の形や「〇〇時から〇〇時まで」の形で入力してね'))
 
+
+
+    # -------------------------------------------
+    # ユーザーステートを反映
+    # -------------------------------------------     
+    if (db.session.query(UserState).filter(UserState.user_id == user_id).count() > 0 ):
+        users = db.session.query(UserState).filter(UserState.user_id == user_id)
+        for user in users:
+            Journey.NowState = user.state
+    else:
+        user = UserState()
+        user.user_id = user_id
+        user.state = Journey.NowState
+    db.session.commit()
 
     print(Journey.NowState)
 
