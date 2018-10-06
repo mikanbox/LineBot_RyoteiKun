@@ -482,9 +482,11 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     InitDB()
-    print("------------GetTextMessage------------\n\n\n\n")
     text = event.message.text
     user_id = event.source.user_id
+
+
+    print("------------GetTextMessage------------\n\n\n\n")
     print(user_id)
     print(text)
     if (db.session.query(UserState).filter(UserState.user_id == user_id).count() > 0 ):
@@ -760,6 +762,10 @@ def sampleFlake(event):
 # -------------------------------------------
 @app.route("/")
 def hello():
+    user = UserState()
+    user.user_id = "user_id"
+    user.state = "Journey.NowState"
+    db.session.commit()
     return "Hello World!"
 
 #公共クラウドシステムからデータ取得(未使用)
