@@ -80,8 +80,8 @@ class SpotDist(db.Model):
 
 class UserState(db.Model):
     __tablename__ = "user_state" # 追加
-    user_id    = db.Column(db.Integer, primary_key=True,autoincrement=True) # 追加
-    state      = db.Column(db.String(), nullable=False) # 追加
+    user_id    = db.Column(db.String(), primary_key=True,autoincrement=True) # 追加
+    state      = db.Column(db.String()) # 追加
 
 class Journey:
     step = 0
