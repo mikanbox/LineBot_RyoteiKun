@@ -497,6 +497,7 @@ def handle_message(event):
     IsConversation = False
     if (Journey.NowState == 'listen_word'):
         if (getJourney(text)):
+            print("◆getJourney")
             Journey.NowState = 'listen_pref_plan'
         else:
             IsConversation = True
@@ -504,6 +505,7 @@ def handle_message(event):
 
     if (Journey.NowState == 'listen_pref_plan'):
         if (getPref(text) != False):
+            print("◆getPref")
             Journey.pref = getPref(text)
             print(Journey.pref)
             Journey.NowState = 'listen_time_plan'
@@ -511,6 +513,7 @@ def handle_message(event):
 
     if (Journey.NowState == 'listen_time_plan'):
         if (getTime(text) != False):
+            print("◆getTime")
             Journey.StartTime,Journey.EndTime = getTime(text)
             dt1 = datetime.datetime.strptime(Journey.StartTime, '%H:%M')
             dt2 = datetime.datetime.strptime(Journey.EndTime, '%H:%M')
@@ -519,6 +522,7 @@ def handle_message(event):
 
 
     if (getStop(text)):
+        print("◆GetStop")
         Journey.NowState = 'listen_word'
 
 
@@ -528,18 +532,14 @@ def handle_message(event):
     # 状態に応じて返信メッセージを記述
     # -------------------------------------------
     if (Journey.NowState == 'listen_word'):
-        # 雑談フラグ作って、それが1なら返す
-        if IsConversation:
-            line_bot_api.reply_message(event.reply_token,
-                TextSendMessage(text='なにがしたい〜？旅行って言ってくれたら計画立てるよ'))
-
+        if IsConversation:# 雑談フラグ作って、それが1なら返す
+            line_bot_api.reply_message(event.reply_token,TextSendMessage(text='なにがしたい〜？旅行って言ってくれたら計画立てるよ'))
+    
     elif (Journey.NowState =='listen_pref_plan'):
-        line_bot_api.reply_message(event.reply_token,
-            TextSendMessage(text='どの県にいきたい？'))
+        line_bot_api.reply_message(event.reply_token,TextSendMessage(text='どの県にいきたい？'))
 
     elif (Journey.NowState =='listen_time_plan'):
-        line_bot_api.reply_message(event.reply_token,
-            TextSendMessage(text='何時から何時まで？\n 「hh:mmm-hh:mm」の形や「〇〇時から〇〇時まで」の形で入力してね'))
+        line_bot_api.reply_message(event.reply_token,TextSendMessage(text='何時から何時まで？\n 「hh:mmm-hh:mm」の形や「〇〇時から〇〇時まで」の形で入力してね'))
 
 
     print(Journey.NowState)
