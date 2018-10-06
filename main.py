@@ -485,6 +485,7 @@ def handle_message(event):
     print("------------GetTextMessage------------\n\n\n\n")
     text = event.message.text
     user_id = event.source.user_id
+    print(user_id)
     print(text)
     if (db.session.query(UserState).filter(UserState.user_id == user_id).count() > 0 ):
         users = db.session.query(UserState).filter(UserState.user_id == user_id)
