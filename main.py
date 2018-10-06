@@ -477,8 +477,11 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     print("------------GetTextMessage------------\n\n\n\n")
+    print(Journey.NowState)
+    
     text = event.message.text
     print(text)
+
     # -------------------------------------------
     # テスト用
     # -------------------------------------------
