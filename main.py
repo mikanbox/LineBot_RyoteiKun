@@ -539,6 +539,7 @@ def handle_message(event):
             dt2 = datetime.datetime.strptime(Journey.EndTime, '%H:%M')
             Journey.MaxTravelTime = (dt2 - dt1).total_seconds()
             mainRoutine(event,Journey.MaxTravelTime,Journey.pref)
+            NowState = 'listen_word'
 
 
     if (getStop(text)):
@@ -571,7 +572,7 @@ def handle_message(event):
         print("updateState")
         users = db.session.query(UserState).filter(UserState.user_id == user_id)
         for user in users:
-            NowState = user.state
+            user.state = NowState
     else:
         user = UserState()
         user.user_id = user_id
