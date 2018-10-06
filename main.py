@@ -91,11 +91,11 @@ class Journey:
     StayTime = 3600
     StartTime = ""
     EndTime = ""
-    NowState ='listen_word'
+    NowState = ""
 
 
 # #状態の定義
-states=['listen_word', 'listen_pref_plan', 'listen_time_plan','exec_plan', 'listen_spot_register','exec_register']
+# states=['listen_word', 'listen_pref_plan', 'listen_time_plan','exec_plan', 'listen_spot_register','exec_register']
 
 
 # -------------------------------------------
