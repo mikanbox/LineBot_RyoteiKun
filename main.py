@@ -473,7 +473,8 @@ def callback():
 @handler.add(PostbackEvent)
 def handle_postback(event):
     print("GetPostBackEvent\n\n\n\n")
-    print(event)
+    print(Journey.step)
+    # print(event)
 
     if (Journey.step == 3):
         Journey.EndTime = event.postback.params["time"]
