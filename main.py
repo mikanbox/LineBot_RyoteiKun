@@ -430,11 +430,19 @@ def getPref(text):
 
 # 何時から何時まで？
 def getTime(text):
-    Key = "[^#]##[^#]"
-    match = re.search(Key, text)
-    if not match:
-        return False
-    return True
+    m = re.match('.*(\d{2}):(\d{2}).*[-|~|〜|ー|(から)].*(\d{2}):(\d{2}).*', text)
+    if m:
+        starttime =  m.group(1)+":"+m.group(2)
+        endtime   =  m.group(3)+":"+m.group(4)
+        return starttime,endtime
+
+    m = re.match('.*(\d{2})時.*[-|~|〜|ー|(から)].*(\d{2})時.*', text)
+    if m:
+        starttime =  m.group(1)+":00"
+        endtime   =  m.group(2)+":00"
+        return starttime,endtime
+
+    return False
 
 def getStop(text):
     for p in ['やめる','やめた','終了','止める','止めた']:
@@ -447,7 +455,6 @@ def getStop(text):
 
 
 
-
 # -------------------------------------------
 # Line messaging API
 # -------------------------------------------
@@ -456,56 +463,15 @@ def getStop(text):
 def callback():
     # get X-Line-Signature header value
     signature = request.headers['X-Line-Signature']
-
     # get request body as text
     body = request.get_data(as_text=True)
     app.logger.info("Request body: " + body)
-
     # handle webhook body
     try:
         handler.handle(body, signature)
     except InvalidSignatureError:
         abort(400)
-
     return 'OK'
-
-
-@handler.add(PostbackEvent)
-def handle_postback(event):
-    print("------------GetPostBackEvent------------\n\n\n\n")
-    print(Journey.NowState)
-
-    if (Journey.NowState =='listen_time_end'):
-        Journey.EndTime = event.postback.params["time"]
-        dt1 = datetime.datetime.strptime(Journey.StartTime, '%H:%M')
-        input_time1 = dt1.time()
-        dt2 = datetime.datetime.strptime(Journey.EndTime, '%H:%M')
-        input_time2 = dt2.time()
-        Journey.MaxTravelTime = (dt2 - dt1).total_seconds()
-        mainRoutine(event,Journey.MaxTravelTime,Journey.pref)
-
-    if (Journey.NowState == 'listen_time_start'):
-        Journey.NowState = 'listen_time_end'
-        Journey.StartTime = event.postback.params["time"]
-        date_picker2 = TemplateSendMessage(
-            alt_text='終了時間を設定',
-            template=ButtonsTemplate(
-                text='hh - mm',
-                title='旅行終了時間を入力',
-                actions=[
-                    DatetimePickerTemplateAction(
-                        label='設定',
-                        data='action=buy&itemid=2',
-                        mode='time'
-                    )
-                ]
-            )
-        )
-        line_bot_api.reply_message(
-            event.reply_token,
-            date_picker2
-        )
-        print(Journey.NowState)
 
 
 @handler.add(MessageEvent, message=TextMessage)
@@ -524,8 +490,6 @@ def handle_message(event):
 
 
 
-
-
     # -------------------------------------------
     # 状態とテキストに応じて処理を記述
     # -------------------------------------------
@@ -535,14 +499,26 @@ def handle_message(event):
             Journey.NowState = 'listen_pref_plan'
         else:
             IsConversation = True
-    # if () //スポット登録
 
     if (Journey.NowState == 'listen_pref_plan'):
-        if (getPref(text)):
+        if (getPref(text) != False):
             Journey.pref = getPref(text)
+            print(Journey.pref)
             Journey.NowState = 'listen_time_plan'
 
-    # やっぱやめる場合
+
+    if (Journey.NowState == 'listen_time_plan'):
+        if (getTime(text) != False):
+            Journey.StartTime,Journey.EndTime = getTime(text)
+
+
+
+        dt1 = datetime.datetime.strptime(Journey.StartTime, '%H:%M')
+        dt2 = datetime.datetime.strptime(Journey.EndTime, '%H:%M')
+        Journey.MaxTravelTime = (dt2 - dt1).total_seconds()
+        mainRoutine(event,Journey.MaxTravelTime,Journey.pref)
+
+
     if (getStop(text)):
         Journey.NowState = 'listen_word'
 
@@ -563,25 +539,9 @@ def handle_message(event):
             TextSendMessage(text='どの県にいきたい？'))
 
     elif (Journey.NowState =='listen_time_plan'):
-        Journey.NowState ='listen_time_start'
-        date_picker1 = TemplateSendMessage(
-            alt_text='開始時間を設定',
-            template=ButtonsTemplate(
-                text='hh - mm',
-                title='旅行開始時間を入力',
-                actions=[
-                    DatetimePickerTemplateAction(
-                        label='設定',
-                        data='action=buy&itemid=1',
-                        mode='time'
-                    )
-                ]
-            )
-        )
-        line_bot_api.reply_message(
-            event.reply_token,
-            date_picker1
-        )
+        line_bot_api.reply_message(event.reply_token,
+            TextSendMessage(text='何時から何時まで？\n 「hh:mmm-hh:mm」の形や「〇〇時から〇〇時まで」の形で入力してね'))
+
 
     print(Journey.NowState)
 
