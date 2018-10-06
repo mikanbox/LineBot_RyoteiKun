@@ -542,7 +542,7 @@ def handle_message(event):
 
     if (getStop(text)):
         print("◆GetStop")
-        Journey.NowState = 'listen_word'
+        Journey.NowState = 'stop'
 
 
     print(Journey.NowState)
@@ -557,6 +557,9 @@ def handle_message(event):
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='どの県にいきたい？'))
     elif (Journey.NowState =='listen_time_plan'):
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='何時から何時まで？\n 「hh:mmm-hh:mm」の形や「〇〇時から〇〇時まで」の形で入力してね'))
+    elif (Journey.NowState == 'stop'):
+        Journey.NowState = 'listen_word'
+        line_bot_api.reply_message(event.reply_token,TextSendMessage(text='計画を中止したよ'))
 
 
 
@@ -572,6 +575,7 @@ def handle_message(event):
         user = UserState()
         user.user_id = user_id
         user.state = Journey.NowState
+        db.session.add(user)
 
     db.session.commit()
     print(Journey.NowState)
