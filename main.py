@@ -518,7 +518,7 @@ def handle_message(event):
     if (NowState == 'listen_word'):
         if (getJourney(text)):
             print("◆getJourney")
-            Journey.NowState = 'listen_pref_plan'
+            NowState = 'listen_pref_plan'
         else:
             IsConversation = True
 
@@ -528,7 +528,7 @@ def handle_message(event):
             print("◆getPref")
             Journey.pref = getPref(text)
             print(Journey.pref)
-            Journey.NowState = 'listen_time_plan'
+            NowState = 'listen_time_plan'
 
 
     if (NowState == 'listen_time_plan'):
@@ -554,7 +554,7 @@ def handle_message(event):
     if (NowState == 'listen_word'):
         if IsConversation:# 雑談フラグ作って、それが1なら返す
             line_bot_api.reply_message(event.reply_token,TextSendMessage(text='なにがしたい〜？旅行って言ってくれたら計画立てるよ'))
-    elif (.NowState =='listen_pref_plan'):
+    elif (NowState =='listen_pref_plan'):
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='どの県にいきたい？'))
     elif (NowState =='listen_time_plan'):
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='何時から何時まで？\n 「hh:mmm-hh:mm」の形や「〇〇時から〇〇時まで」の形で入力してね'))
