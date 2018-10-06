@@ -478,6 +478,7 @@ def callback():
 def handle_message(event):
     print("------------GetTextMessage------------\n\n\n\n")
     text = event.message.text
+    print(text)
     # -------------------------------------------
     # テスト用
     # -------------------------------------------
@@ -499,6 +500,7 @@ def handle_message(event):
             Journey.NowState = 'listen_pref_plan'
         else:
             IsConversation = True
+
 
     if (Journey.NowState == 'listen_pref_plan'):
         if (getPref(text) != False):
