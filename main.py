@@ -476,7 +476,7 @@ def handle_postback(event):
     print(Journey.NowState)
     # print(event)
 
-    if (Journey.NowState =='listen_time_plan_end'):
+    if (Journey.NowState =='listen_time_end'):
         Journey.EndTime = event.postback.params["time"]
         dt1 = datetime.datetime.strptime(Journey.StartTime, '%H:%M')
         input_time1 = dt1.time()
@@ -485,8 +485,8 @@ def handle_postback(event):
         Journey.MaxTravelTime = (dt2 - dt1).total_seconds()        
         mainRoutine(event,32800,Journey.pref)
 
-    if (Journey.NowState == 'listen_time_plan_start'):
-        Journey.NowState = 'listen_time_plan_end'
+    if (Journey.NowState == 'listen_time_start'):
+        Journey.NowState = 'listen_time_end'
         Journey.StartTime = event.postback.params["time"]
         date_picker2 = TemplateSendMessage(
             alt_text='終了時間を設定',
