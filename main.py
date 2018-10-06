@@ -472,7 +472,7 @@ def callback():
 
 @handler.add(PostbackEvent)
 def handle_postback(event):
-    print("GetPostBackEvent\n\n\n\n")
+    print("------------GetPostBackEvent------------\n\n\n\n")
     print(Journey.NowState)
     # print(event)
 
@@ -510,7 +510,7 @@ def handle_postback(event):
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    print("GetTextMessage\n\n\n\n")
+    print("------------GetTextMessage------------\n\n\n\n")
     text = event.message.text
     # -------------------------------------------
     # テスト用
@@ -541,6 +541,7 @@ def handle_message(event):
         if (getPref(text)):
             Journey.pref = getPref(text)
             Journey.NowState = 'listen_time_plan'
+
     # やっぱやめる場合
     if (getStop(text)):
         Journey.NowState = 'listen_word'
