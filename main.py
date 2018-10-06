@@ -510,13 +510,10 @@ def handle_message(event):
     if (Journey.NowState == 'listen_time_plan'):
         if (getTime(text) != False):
             Journey.StartTime,Journey.EndTime = getTime(text)
-
-
-
-        dt1 = datetime.datetime.strptime(Journey.StartTime, '%H:%M')
-        dt2 = datetime.datetime.strptime(Journey.EndTime, '%H:%M')
-        Journey.MaxTravelTime = (dt2 - dt1).total_seconds()
-        mainRoutine(event,Journey.MaxTravelTime,Journey.pref)
+            dt1 = datetime.datetime.strptime(Journey.StartTime, '%H:%M')
+            dt2 = datetime.datetime.strptime(Journey.EndTime, '%H:%M')
+            Journey.MaxTravelTime = (dt2 - dt1).total_seconds()
+            mainRoutine(event,Journey.MaxTravelTime,Journey.pref)
 
 
     if (getStop(text)):
