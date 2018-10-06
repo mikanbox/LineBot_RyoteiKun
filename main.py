@@ -473,10 +473,10 @@ def callback():
 @handler.add(PostbackEvent)
 def handle_postback(event):
     print("GetPostBackEvent\n\n\n\n")
-    print(Journey.step)
+    print(Journey.NowState)
     # print(event)
 
-    if (Journey.step == 3):
+    if (Journey.NowState =='listen_time_plan_end'):
         Journey.EndTime = event.postback.params["time"]
         dt1 = datetime.datetime.strptime(Journey.StartTime, '%H:%M')
         input_time1 = dt1.time()
@@ -485,14 +485,16 @@ def handle_postback(event):
         Journey.MaxTravelTime = (dt2 - dt1).total_seconds()        
         mainRoutine(event,32800,Journey.pref)
 
-    if (Journey.step == 2):
+    if (Journey.NowState == 'listen_time_plan'):
+        Journey.NowState =='listen_time_plan_end'
+    # if (Journey.step == 2):
         Journey.StartTime = event.postback.params["time"]
         Journey.step = 3
         date_picker2 = TemplateSendMessage(
             alt_text='終了時間を設定',
             template=ButtonsTemplate(
-                text='終了時間を設定'+str(Journey.step),
-                title='hh--mm',
+                text='hh - mm',
+                title='旅行開始時間を入力',
                 actions=[
                     DatetimePickerTemplateAction(
                         label='設定',
@@ -512,7 +514,6 @@ def handle_postback(event):
 def handle_message(event):
     print("GetTextMessage\n\n\n\n")
     text = event.message.text
-
     # -------------------------------------------
     # テスト用
     # -------------------------------------------
@@ -563,7 +564,7 @@ def handle_message(event):
             TextSendMessage(text='どの県にいきたい？'))
 
     elif (Journey.NowState =='listen_time_plan'):
-        Journey.step = 2
+        # Journey.step = 2
         date_picker1 = TemplateSendMessage(
             alt_text='開始時間を設定',
             template=ButtonsTemplate(
