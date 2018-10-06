@@ -485,11 +485,11 @@ def handle_postback(event):
         Journey.MaxTravelTime = (dt2 - dt1).total_seconds()        
         mainRoutine(event,32800,Journey.pref)
 
-    if (Journey.NowState == 'listen_time_plan'):
+    if (Journey.NowState == 'listen_time_plan_start'):
         Journey.NowState =='listen_time_plan_end'
     # if (Journey.step == 2):
         Journey.StartTime = event.postback.params["time"]
-        Journey.step = 3
+        # Journey.step = 3
         date_picker2 = TemplateSendMessage(
             alt_text='終了時間を設定',
             template=ButtonsTemplate(
@@ -564,6 +564,7 @@ def handle_message(event):
             TextSendMessage(text='どの県にいきたい？'))
 
     elif (Journey.NowState =='listen_time_plan'):
+        Journey.NowState =='listen_time_plan_start'
         # Journey.step = 2
         date_picker1 = TemplateSendMessage(
             alt_text='開始時間を設定',
