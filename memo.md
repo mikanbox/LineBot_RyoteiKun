@@ -63,7 +63,10 @@ URL
 
 - 状態遷移の修正
 - ※定式化に修正が必要
-- flexSample実装
+- flexSample実装 → 起動に成功
+
+
+
  
 
 ### ngrokについて

@@ -371,24 +371,42 @@ def mainRoutine(event=0,time=0,pref='大阪'):
 
 
 
-# def AddSpot(event=0,text):
+def AddSpot(event=0,text):
+    # 名前も受け取る？
+    lat, lng = getPointFromGoogleAPI(spot.name)
+    spotName = ""
+    spotScore =0
+    if (lat == None):
+        return False
 
+    if (db.session.query(Spot).filter(Spot.name == s.text).count() > 0):
+        return False
 
+    #もしgoogleで検索できたら,,,
+    # DBに追加
 
-#     spot.lat, spot.lng = getPointFromGoogleAPI(spot.name)
-#     #もしgoogleで検索できたら,,,
-#     # DBに追加
-#     spots = list()
-#     for (s, sc) in zip(spotName, spotScore):
-#         if (db.session.query(Spot).filter(Spot.name == s.text).count() > 0):
-#             continue
-#         spot = Spot()
-#         spot.name =s.text
-#         spot.pref = pref
-#         spot.score = float(sc.text)
-#         spots.append(spot)
-#     db.session.add_all(spots)
-#     db.session.commit()
+    # spots = list()
+    # for (s, sc) in zip(spotName, spotScore):
+    #     spot = Spot()
+    #     spot.name =s
+    #     spot.pref = pref
+    #     spot.score = float(sc.text)
+    #     spots.append(spot)
+    # db.session.add_all(spots)
+    # db.session.commit()
+    spot = Spot()
+    spot.lat = lat
+    spot.lng = lng
+    spot.name = spotName
+    spot.pref = pref
+    spot.score = float(spotScore)
+    db.session.add(spot)
+    db.session.commit()
+
+    line_bot_api.reply_message(event.reply_token,
+        TextSendMessage(text='スポットを登録したよ！'))
+
+    return True
 
 
 # -------------------------------------------
@@ -492,6 +510,7 @@ def handle_postback(event):
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     print("GetTextMessage\n\n\n\n")
+    print(Journey.NowState)
     text = event.message.text
 
     # -------------------------------------------
@@ -537,17 +556,19 @@ def handle_message(event):
         # 雑談フラグ作って、それが1なら返す
         if IsConversation:
             line_bot_api.reply_message(event.reply_token,
-                TextSendMessage(text='なにがしたい〜？'))
+                TextSendMessage(text='なにがしたい〜？旅行って言ってくれたら計画立てるよ'))
+
     elif (Journey.NowState =='listen_pref_plan'):
         line_bot_api.reply_message(event.reply_token,
-            TextSendMessage(text='どこにいきたい？'))
+            TextSendMessage(text='どの県にいきたい？'))
+
     elif (Journey.NowState =='listen_time_plan'):
         Journey.step = 2
         date_picker1 = TemplateSendMessage(
             alt_text='開始時間を設定',
             template=ButtonsTemplate(
-                text='開始時間を設定'+str(Journey.step),
-                title='hh--mm',
+                text='hh - mm',
+                title='旅行開始時間を入力',
                 actions=[
                     DatetimePickerTemplateAction(
                         label='設定',
@@ -564,71 +585,124 @@ def handle_message(event):
 
 
 
-
-    # if (text in "旅行"):
-    #     Journey.step = 1
-    #     line_bot_api.reply_message(
-    #         event.reply_token,
-    #         TextSendMessage(text='どこに行きたいですか？'+str(Journey.step)))
-
-    # if (text in "大阪"):
-    #     if (Journey.step == 1):
-    #         Journey.step = 2
-    #         date_picker1 = TemplateSendMessage(
-    #             alt_text='開始時間を設定',
-    #             template=ButtonsTemplate(
-    #                 text='開始時間を設定'+str(Journey.step),
-    #                 title='hh--mm',
-    #                 actions=[
-    #                     DatetimePickerTemplateAction(
-    #                         label='設定',
-    #                         data='action=buy&itemid=1',
-    #                         mode='time'
+def sampleFlake(event):
+    # bubble = BubbleContainer(
+    #             direction='ltr',
+    #             hero=ImageComponent(
+    #                 url='https://example.com/cafe.jpg',
+    #                 size='full',
+    #                 aspect_ratio='20:13',
+    #                 aspect_mode='cover',
+    #                 action=URIAction(uri='http://example.com', label='label')
+    #             ),
+    #             body=BoxComponent(
+    #                 layout='vertical',
+    #                 contents=[
+    #                     # title
+    #                     TextComponent(text='Brown Cafe', weight='bold', size='xl'),
+    #                     # review
+    #                     BoxComponent(
+    #                         layout='baseline',
+    #                         margin='md',
+    #                         contents=[
+    #                             IconComponent(size='sm', url='https://example.com/gold_star.png'),
+    #                             IconComponent(size='sm', url='https://example.com/grey_star.png'),
+    #                             IconComponent(size='sm', url='https://example.com/gold_star.png'),
+    #                             IconComponent(size='sm', url='https://example.com/gold_star.png'),
+    #                             IconComponent(size='sm', url='https://example.com/grey_star.png'),
+    #                             TextComponent(text='4.0', size='sm', color='#999999', margin='md',
+    #                                           flex=0)
+    #                         ]
+    #                     ),
+    #                     # info
+    #                     BoxComponent(
+    #                         layout='vertical',
+    #                         margin='lg',
+    #                         spacing='sm',
+    #                         contents=[
+    #                             BoxComponent(
+    #                                 layout='baseline',
+    #                                 spacing='sm',
+    #                                 contents=[
+    #                                     TextComponent(
+    #                                         text='Place',
+    #                                         color='#aaaaaa',
+    #                                         size='sm',
+    #                                         flex=1
+    #                                     ),
+    #                                     TextComponent(
+    #                                         text='Shinjuku, Tokyo',
+    #                                         wrap=True,
+    #                                         color='#666666',
+    #                                         size='sm',
+    #                                         flex=5
+    #                                     )
+    #                                 ],
+    #                             ),
+    #                             BoxComponent(
+    #                                 layout='baseline',
+    #                                 spacing='sm',
+    #                                 contents=[
+    #                                     TextComponent(
+    #                                         text='Time',
+    #                                         color='#aaaaaa',
+    #                                         size='sm',
+    #                                         flex=1
+    #                                     ),
+    #                                     TextComponent(
+    #                                         text="10:00 - 23:00",
+    #                                         wrap=True,
+    #                                         color='#666666',
+    #                                         size='sm',
+    #                                         flex=5,
+    #                                     ),
+    #                                 ],
+    #                             ),
+    #                         ],
+    #                     )
+    #                 ],
+    #             ),
+    #             footer=BoxComponent(
+    #                 layout='vertical',
+    #                 spacing='sm',
+    #                 contents=[
+    #                     # callAction, separator, websiteAction
+    #                     SpacerComponent(size='sm'),
+    #                     # callAction
+    #                     ButtonComponent(
+    #                         style='link',
+    #                         height='sm',
+    #                         action=URIAction(label='CALL', uri='tel:000000'),
+    #                     ),
+    #                     # separator
+    #                     SeparatorComponent(),
+    #                     # websiteAction
+    #                     ButtonComponent(
+    #                         style='link',
+    #                         height='sm',
+    #                         action=URIAction(label='WEBSITE', uri="https://example.com")
     #                     )
     #                 ]
-    #             )
+    #             ),
     #         )
-    #         line_bot_api.reply_message(
-    #             event.reply_token,
-    #             date_picker1
-    #         )
-    # else:
-    #     if (Journey.step == 1 and text not in "旅行"):
-    #         line_bot_api.reply_message(
-    #             event.reply_token,
-    #             TextSendMessage(text='行きたい場所を教えてください'+str(Journey.step)))
-
-
-def sampleFlake(event):
-    bubble = BubbleContainer(
-                direction='ltr',
-                hero=ImageComponent(
+    headerImage = ImageComponent(# 画像ヘッダ
                     url='https://example.com/cafe.jpg',
                     size='full',
                     aspect_ratio='20:13',
                     aspect_mode='cover',
-                    action=URIAction(uri='http://example.com', label='label')
-                ),
+                )
+
+
+
+    bubble = BubbleContainer(
+                direction='ltr',
+                hero=headerImage,
                 body=BoxComponent(
                     layout='vertical',
                     contents=[
                         # title
                         TextComponent(text='Brown Cafe', weight='bold', size='xl'),
-                        # review
-                        BoxComponent(
-                            layout='baseline',
-                            margin='md',
-                            contents=[
-                                IconComponent(size='sm', url='https://example.com/gold_star.png'),
-                                IconComponent(size='sm', url='https://example.com/grey_star.png'),
-                                IconComponent(size='sm', url='https://example.com/gold_star.png'),
-                                IconComponent(size='sm', url='https://example.com/gold_star.png'),
-                                IconComponent(size='sm', url='https://example.com/grey_star.png'),
-                                TextComponent(text='4.0', size='sm', color='#999999', margin='md',
-                                              flex=0)
-                            ]
-                        ),
-                        # info
+                        # # info
                         BoxComponent(
                             layout='vertical',
                             margin='lg',
@@ -645,7 +719,7 @@ def sampleFlake(event):
                                             flex=1
                                         ),
                                         TextComponent(
-                                            text='Shinjuku, Tokyo',
+                                            text='万博公園',
                                             wrap=True,
                                             color='#666666',
                                             size='sm',
@@ -674,30 +748,14 @@ def sampleFlake(event):
                                 ),
                             ],
                         )
+
+
+
                     ],
                 ),
-                footer=BoxComponent(
-                    layout='vertical',
-                    spacing='sm',
-                    contents=[
-                        # callAction, separator, websiteAction
-                        SpacerComponent(size='sm'),
-                        # callAction
-                        ButtonComponent(
-                            style='link',
-                            height='sm',
-                            action=URIAction(label='CALL', uri='tel:000000'),
-                        ),
-                        # separator
-                        SeparatorComponent(),
-                        # websiteAction
-                        ButtonComponent(
-                            style='link',
-                            height='sm',
-                            action=URIAction(label='WEBSITE', uri="https://example.com")
-                        )
-                    ]
-                ),
+
+
+
             )
 
 
@@ -799,7 +857,6 @@ def testmain2():
     for spot in spotds:
         print(str(spot.id_from) + " - "+str(spot.id_to) + "  " + str(spot.time) )
     return "end"
-
 
 
 
