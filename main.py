@@ -31,7 +31,7 @@ from linebot.models import (
     UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent,
     FlexSendMessage, BubbleContainer, ImageComponent, BoxComponent,
     TextComponent, SpacerComponent, IconComponent, ButtonComponent,
-    SeparatorComponent, QuickReply, QuickReplyButton
+    SeparatorComponent, QuickReply, QuickReplyButton,DatetimePickerTemplateAction
 )
 
 
@@ -510,7 +510,6 @@ def handle_postback(event):
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     print("GetTextMessage\n\n\n\n")
-    print(Journey.NowState)
     text = event.message.text
 
     # -------------------------------------------
@@ -547,7 +546,7 @@ def handle_message(event):
         Journey.NowState = 'listen_word'
 
 
-
+    print(Journey.NowState)
 
     # -------------------------------------------
     # 状態に応じて返信メッセージを記述
