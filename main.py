@@ -371,7 +371,7 @@ def mainRoutine(event=0,time=0,pref='大阪'):
 
 
 
-def AddSpot(event=0,text):
+def AddSpot(event=0,text=""):
     # 名前も受け取る？
     lat, lng = getPointFromGoogleAPI(spot.name)
     spotName = ""
