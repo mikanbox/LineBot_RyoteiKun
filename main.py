@@ -313,18 +313,18 @@ def sendFexMessage(event,place,time,pref):
         )
         contents.append(boxc)
 
-        if (i < len(place) - 1):
-            boxc = BoxComponent(
-                layout='baseline',
-                spacing='sm',
-                contents=[
-                    TextComponent( 
-                        text='↓ ' + str(int(time[i]/60) ) +'min',
-                        color='#aaaaaa',size='sm',flex=1
-                    )
-                ]
-            )
-            contents.append(boxc)
+        # if (i < len(place) - 1):
+        #     boxc = BoxComponent(
+        #         layout='baseline',
+        #         spacing='sm',
+        #         contents=[
+        #             TextComponent( 
+        #                 text='↓ ' + str(int(time[i]/60) ) +'min',
+        #                 color='#aaaaaa',size='sm',flex=1
+        #             )
+        #         ]
+        #     )
+        #     contents.append(boxc)
 
 
 
