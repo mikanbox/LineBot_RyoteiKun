@@ -536,6 +536,7 @@ def sampleFlake(event):
 # -------------------------------------------
 def mainRoutine(event=0,time=0,pref='大阪'):
     Journey.MaxTravelTime = time
+    print("pref"+pref)
     # ----------------------------------------------------------
     #   DB初期化
     # ----------------------------------------------------------
@@ -624,7 +625,7 @@ def mainRoutine(event=0,time=0,pref='大阪'):
     # # ----------------------------------------------------------
     # #   返送用Line構造体を生成
     # # ----------------------------------------------------------
-    print("pref"+pref)
+
     if (jouneySpot == None):
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='可能なプランがありません！'))
     else:
