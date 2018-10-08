@@ -305,12 +305,12 @@ def sendFexMessage(event,place,time,pref):
                 layout='baseline',
                 spacing='sm',
                 contents=[
-                    TextComponent(text='',color='#aaaaaa',size='sm',flex=1),
+                    # TextComponent(text='',color='#aaaaaa',size='sm',flex=1),
                     TextComponent( 
                         text='↓   ' + str(int(time[i]/3600) ) +'h : ' + str(int(time[i]/60)%60 ) +'m ',
                         color='#aaaaaa',size='sm',flex=1
                     ),
-                    TextComponent(text='',color='#aaaaaa',size='sm',flex=1),
+                    # TextComponent(text='',color='#aaaaaa',size='sm',flex=1),
                 ]
             )
             contents.append(box)
