@@ -276,6 +276,81 @@ def InitDB():
     SpotDist.metadata.create_all(bind = ENGINE)
     UserState.metadata.create_all(bind = ENGINE)
 
+
+
+
+def sendFexMessage(event,place,time):
+    #     message = []
+    # message.append("おすすめのプランはこうだよ！")
+    # # message.append(Journey.StartTime)
+    # mes = ""
+    # for i in range(len(jouneylist)):
+    #     mes += "■"+jouneylist[i] + "\n滞在:" + str(Journey.StayTime / 60) + "分くらい\n"
+    #     if (i < len(jouneylist) - 1):
+    #         mes += "↓\n↓  移動:" + str(int(jouneyTime[i] / 60)) + "分くらい\n↓\n"
+    # message.append(mes)
+    # message.append(Journey.EndTime)
+
+    contents =[]
+    for i in range(len(place)):
+        boxc = BoxComponent(
+            layout='baseline',
+            spacing='sm',
+            contents=[
+                TextComponent(
+                    text='Place',color='#aaaaaa',size='sm',flex=1
+                ),
+                TextComponent(
+                    text=place[i],wrap=True,color='#666666',size='sm',flex=5
+                )
+            ]
+        )
+        contents.append(boxc)
+
+        if (i < len(place) - 1):
+            boxc = BoxComponent(
+                layout='baseline',
+                spacing='sm',
+                contents=[
+                    TextComponent(
+                        text='|\n| ' + str(time[i]/60) +'min \n|',
+                        color='#aaaaaa',size='sm',flex=1
+                    )
+                ]
+            )
+            contents.append(boxc)
+
+
+    headerImage = ImageComponent(# 画像ヘッダ
+                    url='https://example.com/cafe.jpg',
+                    size='full',
+                    aspect_ratio='20:13',
+                    aspect_mode='cover',
+                )
+    bubble = BubbleContainer(
+                direction='ltr',
+                hero=headerImage,
+                body=BoxComponent(
+                    layout='vertical',
+                    contents=[
+                        # title
+                        TextComponent(text='Brown Cafe', weight='bold', size='xl'),
+                        # # info
+                        contents
+
+                    ],
+                ),
+
+            )
+
+
+    message = FlexSendMessage(alt_text="hello", contents=bubble)
+    line_bot_api.reply_message(
+        event.reply_token,
+        message
+    )
+
+
 # -------------------------------------------
 # メインルーチン
 # -------------------------------------------
@@ -372,7 +447,7 @@ def mainRoutine(event=0,time=0,pref='大阪'):
     if (jouneySpot == None):
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='可能なプランがありません！'))
     else:
-        sendFexMessage(event,jouneySpot,moveTime):
+        sendFexMessage(event,jouneySpot,moveTime)
 
     # txtarray = []
     # for st in message:
@@ -425,77 +500,6 @@ def AddSpot(event=0,text=""):
 
     return True
 
-
-def sendFexMessage(event,place,time):
-    #     message = []
-    # message.append("おすすめのプランはこうだよ！")
-    # # message.append(Journey.StartTime)
-    # mes = ""
-    # for i in range(len(jouneylist)):
-    #     mes += "■"+jouneylist[i] + "\n滞在:" + str(Journey.StayTime / 60) + "分くらい\n"
-    #     if (i < len(jouneylist) - 1):
-    #         mes += "↓\n↓  移動:" + str(int(jouneyTime[i] / 60)) + "分くらい\n↓\n"
-    # message.append(mes)
-    # message.append(Journey.EndTime)
-
-    contents =[]
-    for i in range(len(place)):
-        boxc = BoxComponent(
-            layout='baseline',
-            spacing='sm',
-            contents=[
-                TextComponent(
-                    text='Place',color='#aaaaaa',size='sm',flex=1
-                ),
-                TextComponent(
-                    text=place[i],wrap=True,color='#666666',size='sm',flex=5
-                )
-            ]
-        )
-        contents.append(boxc)
-
-        if (i < len(place) - 1):
-            boxc = BoxComponent(
-                layout='baseline',
-                spacing='sm',
-                contents=[
-                    TextComponent(
-                        text='|\n| ' + str(time[i]/60) +'min \n|',
-                        color='#aaaaaa',size='sm',flex=1
-                    )
-                ]
-            )
-            contents.append(boxc)
-
-
-    headerImage = ImageComponent(# 画像ヘッダ
-                    url='https://example.com/cafe.jpg',
-                    size='full',
-                    aspect_ratio='20:13',
-                    aspect_mode='cover',
-                )
-    bubble = BubbleContainer(
-                direction='ltr',
-                hero=headerImage,
-                body=BoxComponent(
-                    layout='vertical',
-                    contents=[
-                        # title
-                        TextComponent(text='Brown Cafe', weight='bold', size='xl'),
-                        # # info
-                        contents
-
-                    ],
-                ),
-
-            )
-
-
-    message = FlexSendMessage(alt_text="hello", contents=bubble)
-    line_bot_api.reply_message(
-        event.reply_token,
-        message
-    )
 
 
 
