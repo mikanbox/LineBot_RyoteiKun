@@ -251,10 +251,6 @@ def CreateResult(route, point):
 
     jouneylist.append(startLocation)#最後に終点を追加
 
-    print("SpotName")
-    for pl in jouneylist:
-        print(pl)
-    print("\n")
 
     return jouneylist,jouneyTime
 
@@ -286,25 +282,6 @@ def InitDB():
 
 def sendFexMessage(event,place,time,pref):
     contents =[]
-    # boxc = BoxComponent(
-    #     layout='baseline',
-    #     spacing='sm',
-    #     contents=[
-    #         TextComponent(
-    #             text='Place',color='#aaaaaa',size='sm',flex=1
-    #         ),
-    #         TextComponent(
-    #             text="place",wrap=True,color='#666666',size='sm',flex=5
-    #         )
-    #     ]
-    # )
-    # contents.append(boxc)
-
-    # contents.append(TextComponent(text=pref+'旅行', weight='bold', size='xl'))
-    print("SpotName")
-    for pl in place:
-        print(pl)
-    print("\n")
 
 
     for i in range(len(place)):
@@ -323,18 +300,18 @@ def sendFexMessage(event,place,time,pref):
         )
         contents.append(boxc)
 
-        # if (i < len(place) - 1):
-        #     boxc = BoxComponent(
-        #         layout='baseline',
-        #         spacing='sm',
-        #         contents=[
-        #             TextComponent( 
-        #                 text='↓ ' + str(int(time[i]/60) ) +'min',
-        #                 color='#aaaaaa',size='sm',flex=1
-        #             )
-        #         ]
-        #     )
-        #     contents.append(boxc)
+        if (i < len(place) - 1):
+            box = BoxComponent(
+                layout='baseline',
+                spacing='sm',
+                contents=[
+                    TextComponent( 
+                        text='   ' + str(int(time[i]/60) ) +'min',
+                        color='#aaaaaa',size='sm',flex=1
+                    )
+                ]
+            )
+            contents.append(box)
 
 
 
