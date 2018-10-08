@@ -322,6 +322,8 @@ def sendFexMessage(event,place,time,pref):
                     aspect_ratio='20:13',
                     aspect_mode='cover',
                 )
+    
+    title = pref +'旅行'
     bubble = BubbleContainer(
                 direction='ltr',
                 hero=headerImage,
@@ -329,7 +331,6 @@ def sendFexMessage(event,place,time,pref):
                     layout='vertical',
                     contents=[
                         # title
-                        title = pref +'旅行'
                         TextComponent(text= title , weight='bold', size='xl'),
                         # # info
                         BoxComponent(
