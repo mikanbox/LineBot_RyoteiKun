@@ -305,10 +305,12 @@ def sendFexMessage(event,place,time,pref):
                 layout='baseline',
                 spacing='sm',
                 contents=[
+                    TextComponent(text='',color='#aaaaaa',size='sm',flex=1),
                     TextComponent( 
-                        text='   ' + str(int(time[i]/60) ) +'min',
+                        text='↓   ' + str(int(time[i]/3600) ) +'h : ' + str(int(time[i]/60)%60 ) +'m ',
                         color='#aaaaaa',size='sm',flex=1
-                    )
+                    ),
+                    TextComponent(text='',color='#aaaaaa',size='sm',flex=1),
                 ]
             )
             contents.append(box)
@@ -322,7 +324,9 @@ def sendFexMessage(event,place,time,pref):
                     aspect_ratio='20:13',
                     aspect_mode='cover',
                 )
-    
+    #--------------------------------------------------
+    # コンテナ作成
+    #--------------------------------------------------
     title = pref +'旅行'
     bubble = BubbleContainer(
                 direction='ltr',
@@ -334,15 +338,10 @@ def sendFexMessage(event,place,time,pref):
                         TextComponent(text= title , weight='bold', size='xl'),
                         # # info
                         BoxComponent(
-                            layout='vertical',
-                            margin='lg',
-                            spacing='sm',
-                            contents=contents
+                            layout='vertical',margin='lg',spacing='sm',contents=contents
                         )
-
-                    ],
-                ),
-
+                    ]
+                )
             )
 
 
