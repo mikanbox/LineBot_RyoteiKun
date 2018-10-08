@@ -187,9 +187,11 @@ def CreateResult(route, point):
     # 旅程が建てられないとき
     # -------------------------------------------    
     if (pointCount <= 1):  # 旅程が建てられない場合
-        message = []
-        message.append("可能なプランがありません！")
-        return message
+
+        return None,None
+        # message = []
+        # message.append("可能なプランがありません！")
+        # return message
 
 
     # -------------------------------------------
@@ -249,22 +251,24 @@ def CreateResult(route, point):
 
     jouneylist.append(startLocation)#最後に終点を追加
 
+    return jouneylist,jouneyTime
 
-    # -------------------------------------------
-    #文章設計
-    # -------------------------------------------   
-    message = []
-    message.append("おすすめのプランはこうだよ！")
-    # message.append(Journey.StartTime)
-    mes = ""
-    for i in range(len(jouneylist)):
-        mes += "■"+jouneylist[i] + "\n滞在:" + str(Journey.StayTime / 60) + "分くらい\n"
-        if (i < len(jouneylist) - 1):
-            mes += "↓\n↓  移動:" + str(int(jouneyTime[i] / 60)) + "分くらい\n↓\n"
-    message.append(mes)
-    # message.append(Journey.EndTime)
 
-    return message
+    # # -------------------------------------------
+    # #文章設計
+    # # -------------------------------------------   
+    # message = []
+    # message.append("おすすめのプランはこうだよ！")
+    # # message.append(Journey.StartTime)
+    # mes = ""
+    # for i in range(len(jouneylist)):
+    #     mes += "■"+jouneylist[i] + "\n滞在:" + str(Journey.StayTime / 60) + "分くらい\n"
+    #     if (i < len(jouneylist) - 1):
+    #         mes += "↓\n↓  移動:" + str(int(jouneyTime[i] / 60)) + "分くらい\n↓\n"
+    # message.append(mes)
+    # # message.append(Journey.EndTime)
+
+    # return message
 
 
 def InitDB():
@@ -359,21 +363,28 @@ def mainRoutine(event=0,time=0,pref='大阪'):
     # # ----------------------------------------------------------
     # #   返送用メッセージを生成
     # # ----------------------------------------------------------
-    message = CreateResult(route, point)
+    # message = CreateResult(route, point)
+    jouneySpot,moveTime = CreateResult(route, point)
 
     # # ----------------------------------------------------------
     # #   返送用Line構造体を生成
     # # ----------------------------------------------------------
-    txtarray = []
-    for st in message:
-        print(st)
-        txtarray.append(TextSendMessage(text=st))
+    if (jouneySpot == None):
+        line_bot_api.reply_message(event.reply_token,TextSendMessage(text='可能なプランがありません！'))
+    else:
+        sendFexMessage(event,jouneySpot,moveTime):
 
-    print("sendMessage")
-    if (event !=None):
-            line_bot_api.reply_message(event.reply_token,txtarray)
+    # txtarray = []
+    # for st in message:
+    #     print(st)
+    #     txtarray.append(TextSendMessage(text=st))
 
-    Journey.NowState = 'listen_word'
+    # print("sendMessage")
+    # if (event !=None):
+    #     if (len(txtarray) <= 1):
+    #         line_bot_api.reply_message(event.reply_token,txtarray)
+    #     else:
+    #         sendFexMessage(event,message):
 
 
 
@@ -413,6 +424,80 @@ def AddSpot(event=0,text=""):
         TextSendMessage(text='スポットを登録したよ！'))
 
     return True
+
+
+def sendFexMessage(event,place,time):
+    #     message = []
+    # message.append("おすすめのプランはこうだよ！")
+    # # message.append(Journey.StartTime)
+    # mes = ""
+    # for i in range(len(jouneylist)):
+    #     mes += "■"+jouneylist[i] + "\n滞在:" + str(Journey.StayTime / 60) + "分くらい\n"
+    #     if (i < len(jouneylist) - 1):
+    #         mes += "↓\n↓  移動:" + str(int(jouneyTime[i] / 60)) + "分くらい\n↓\n"
+    # message.append(mes)
+    # message.append(Journey.EndTime)
+
+    contents =[]
+    for i in range(len(place)):
+        boxc = BoxComponent(
+            layout='baseline',
+            spacing='sm',
+            contents=[
+                TextComponent(
+                    text='Place',color='#aaaaaa',size='sm',flex=1
+                ),
+                TextComponent(
+                    text=place[i],wrap=True,color='#666666',size='sm',flex=5
+                )
+            ]
+        )
+        contents.append(boxc)
+
+        if (i < len(place) - 1):
+            boxc = BoxComponent(
+                layout='baseline',
+                spacing='sm',
+                contents=[
+                    TextComponent(
+                        text='|\n| ' + str(time[i]/60) +'min \n|',
+                        color='#aaaaaa',size='sm',flex=1
+                    )
+                ]
+            )
+            contents.append(boxc)
+
+
+    headerImage = ImageComponent(# 画像ヘッダ
+                    url='https://example.com/cafe.jpg',
+                    size='full',
+                    aspect_ratio='20:13',
+                    aspect_mode='cover',
+                )
+    bubble = BubbleContainer(
+                direction='ltr',
+                hero=headerImage,
+                body=BoxComponent(
+                    layout='vertical',
+                    contents=[
+                        # title
+                        TextComponent(text='Brown Cafe', weight='bold', size='xl'),
+                        # # info
+                        contents
+
+                    ],
+                ),
+
+            )
+
+
+    message = FlexSendMessage(alt_text="hello", contents=bubble)
+    line_bot_api.reply_message(
+        event.reply_token,
+        message
+    )
+
+
 
 
 # -------------------------------------------
@@ -487,10 +572,12 @@ def handle_message(event):
     user_id = str(event.source.user_id)
 
     NowState='listen_word'
-
     print("------------GetTextMessage------------\n\n\n\n")
     print(user_id)
     print(text)
+    # -------------------------------------------
+    # ユーザーステート読込
+    # -------------------------------------------  
     if (db.session.query(UserState).filter(UserState.user_id == user_id ).count() > 0 ):
         users = db.session.query(UserState).filter(UserState.user_id == user_id)
         for user in users:
@@ -578,7 +665,6 @@ def handle_message(event):
         user.user_id = user_id
         user.state = NowState
         db.session.add(user)
-
     db.session.commit()
     print(NowState)
 
