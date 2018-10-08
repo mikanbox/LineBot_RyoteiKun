@@ -329,7 +329,8 @@ def sendFexMessage(event,place,time,pref):
                     layout='vertical',
                     contents=[
                         # title
-                        TextComponent(text='Brown Cafe', weight='bold', size='xl'),
+                        title = pref +'旅行'
+                        TextComponent(text= title , weight='bold', size='xl'),
                         # # info
                         BoxComponent(
                             layout='vertical',
