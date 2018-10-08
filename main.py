@@ -281,50 +281,50 @@ def InitDB():
 
 def sendFexMessage(event,place,time,pref):
     contents =[]
-    boxc = BoxComponent(
-        layout='baseline',
-        spacing='sm',
-        contents=[
-            TextComponent(
-                text='Place',color='#aaaaaa',size='sm',flex=1
-            ),
-            TextComponent(
-                text="place",wrap=True,color='#666666',size='sm',flex=5
-            )
-        ]
-    )
-    contents.append(boxc)
+    # boxc = BoxComponent(
+    #     layout='baseline',
+    #     spacing='sm',
+    #     contents=[
+    #         TextComponent(
+    #             text='Place',color='#aaaaaa',size='sm',flex=1
+    #         ),
+    #         TextComponent(
+    #             text="place",wrap=True,color='#666666',size='sm',flex=5
+    #         )
+    #     ]
+    # )
+    # contents.append(boxc)
 
     # contents.append(TextComponent(text=pref+'旅行', weight='bold', size='xl'))
     
-    # for i in range(len(place)):
-    #     print(place[i])
-    #     boxc = BoxComponent(
-    #         layout='baseline',
-    #         spacing='sm',
-    #         contents=[
-    #             TextComponent(
-    #                 text='Place',color='#aaaaaa',size='sm',flex=1
-    #             ),
-    #             TextComponent(
-    #                 text=place[i],wrap=True,color='#666666',size='sm',flex=5
-    #             )
-    #         ]
-    #     )
-    #     contents.append(boxc)
+    for i in range(len(place)):
+        print(place[i])
+        boxc = BoxComponent(
+            layout='baseline',
+            spacing='sm',
+            contents=[
+                TextComponent(
+                    text='Place',color='#aaaaaa',size='sm',flex=1
+                ),
+                TextComponent(
+                    text=place[i],wrap=True,color='#666666',size='sm',flex=5
+                )
+            ]
+        )
+        contents.append(boxc)
 
-    #     if (i < len(place) - 1):
-    #         boxc = BoxComponent(
-    #             layout='baseline',
-    #             spacing='sm',
-    #             contents=[
-    #                 TextComponent( 
-    #                     text='↓ ' + str(int(time[i]/60) ) +'min',
-    #                     color='#aaaaaa',size='sm',flex=1
-    #                 )
-    #             ]
-    #         )
-    #         contents.append(boxc)
+        if (i < len(place) - 1):
+            boxc = BoxComponent(
+                layout='baseline',
+                spacing='sm',
+                contents=[
+                    TextComponent( 
+                        text='↓ ' + str(int(time[i]/60) ) +'min',
+                        color='#aaaaaa',size='sm',flex=1
+                    )
+                ]
+            )
+            contents.append(boxc)
 
 
 
