@@ -251,6 +251,11 @@ def CreateResult(route, point):
 
     jouneylist.append(startLocation)#最後に終点を追加
 
+    print("SpotName")
+    for pl in jouneylist:
+        print(pl)
+    print("\n")
+
     return jouneylist,jouneyTime
 
 
@@ -301,8 +306,6 @@ def sendFexMessage(event,place,time,pref):
         print(pl)
     print("\n")
 
-    for i in range(len(place)):
-        print(place[i])
 
     for i in range(len(place)):
         print(place[i])
