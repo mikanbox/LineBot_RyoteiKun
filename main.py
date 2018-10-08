@@ -279,9 +279,11 @@ def InitDB():
 
 
 
-def sendFexMessage(event,place,time):
+def sendFexMessage(event,place,time,pref):
     contents =[]
+    contents.append(TextComponent(text=pref+'旅行', weight='bold', size='xl'))
     for i in range(len(place)):
+        print(place[i])
         boxc = BoxComponent(
             layout='baseline',
             spacing='sm',
@@ -301,8 +303,8 @@ def sendFexMessage(event,place,time):
                 layout='baseline',
                 spacing='sm',
                 contents=[
-                    TextComponent(
-                        text='|\n| ' + str(time[i]/60) +'min \n|',
+                    TextComponent( 
+                        text='↓ ' + str(int(time[i]/60) ) +'min',
                         color='#aaaaaa',size='sm',flex=1
                     )
                 ]
@@ -321,7 +323,13 @@ def sendFexMessage(event,place,time):
                 hero=headerImage,
                 body=BoxComponent(
                     layout='vertical',
-                    contents=contents
+                    contents=[
+                        # title
+                        TextComponent(text='Brown Cafe', weight='bold', size='xl'),
+                        # # info
+                        contents
+
+                    ],
                 ),
 
             )
@@ -630,7 +638,7 @@ def mainRoutine(event=0,time=0,pref='大阪'):
     if (jouneySpot == None):
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='可能なプランがありません！'))
     else:
-        sendFexMessage(event,jouneySpot,moveTime)
+        sendFexMessage(event,jouneySpot,moveTime,pref)
 
     # txtarray = []
     # for st in message:
