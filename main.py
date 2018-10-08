@@ -629,17 +629,6 @@ def mainRoutine(event=0,time=0,pref='大阪'):
     else:
         sendFexMessage(event,jouneySpot,moveTime,pref = pref)
 
-    # txtarray = []
-    # for st in message:
-    #     print(st)
-    #     txtarray.append(TextSendMessage(text=st))
-
-    # print("sendMessage")
-    # if (event !=None):
-    #     if (len(txtarray) <= 1):
-    #         line_bot_api.reply_message(event.reply_token,txtarray)
-    #     else:
-    #         sendFexMessage(event,message):
 
 
 
