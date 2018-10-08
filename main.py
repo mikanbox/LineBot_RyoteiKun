@@ -172,6 +172,7 @@ def CreateResult(route, point):
     for i in Journey.location:
         if (point[i].value() == 1):
             print(i)
+
     print("\n パス \n")
     for i in Journey.location:
         for j in Journey.location:
@@ -187,11 +188,7 @@ def CreateResult(route, point):
     # 旅程が建てられないとき
     # -------------------------------------------    
     if (pointCount <= 1):  # 旅程が建てられない場合
-
         return None,None
-        # message = []
-        # message.append("可能なプランがありません！")
-        # return message
 
 
     # -------------------------------------------
@@ -255,21 +252,6 @@ def CreateResult(route, point):
     return jouneylist,jouneyTime
 
 
-    # # -------------------------------------------
-    # #文章設計
-    # # -------------------------------------------   
-    # message = []
-    # message.append("おすすめのプランはこうだよ！")
-    # # message.append(Journey.StartTime)
-    # mes = ""
-    # for i in range(len(jouneylist)):
-    #     mes += "■"+jouneylist[i] + "\n滞在:" + str(Journey.StayTime / 60) + "分くらい\n"
-    #     if (i < len(jouneylist) - 1):
-    #         mes += "↓\n↓  移動:" + str(int(jouneyTime[i] / 60)) + "分くらい\n↓\n"
-    # message.append(mes)
-    # # message.append(Journey.EndTime)
-
-    # return message
 
 
 def InitDB():
@@ -290,14 +272,11 @@ def sendFexMessage(event,place,time,pref):
             layout='baseline',
             spacing='sm',
             contents=[
-                TextComponent(
-                    text='Place',color='#aaaaaa',size='sm',flex=1
-                ),
-                TextComponent(
-                    text=place[i],wrap=True,color='#666666',size='sm',flex=5
-                )
+                TextComponent( text='Place',color='#aaaaaa',size='sm',flex=1),
+                TextComponent( text=place[i],wrap=True,color='#666666',size='sm',flex=5)
             ]
         )
+
         contents.append(boxc)
 
         if (i < len(place) - 1):
@@ -327,7 +306,7 @@ def sendFexMessage(event,place,time,pref):
     #--------------------------------------------------
     # コンテナ作成
     #--------------------------------------------------
-    title = pref +'旅行'
+    title = str(pref) +'旅行'
     bubble = BubbleContainer(
                 direction='ltr',
                 hero=headerImage,
@@ -648,7 +627,7 @@ def mainRoutine(event=0,time=0,pref='大阪'):
     if (jouneySpot == None):
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='可能なプランがありません！'))
     else:
-        sendFexMessage(event,jouneySpot,moveTime,pref)
+        sendFexMessage(event,jouneySpot,moveTime,pref = pref)
 
     # txtarray = []
     # for st in message:
