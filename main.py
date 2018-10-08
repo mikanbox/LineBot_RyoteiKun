@@ -296,7 +296,14 @@ def sendFexMessage(event,place,time,pref):
     # contents.append(boxc)
 
     # contents.append(TextComponent(text=pref+'旅行', weight='bold', size='xl'))
-    
+    print("SpotName")
+    for pl in place:
+        print(pl)
+    print("\n")
+
+    for i in range(len(place)):
+        print(place[i])
+
     for i in range(len(place)):
         print(place[i])
         boxc = BoxComponent(
