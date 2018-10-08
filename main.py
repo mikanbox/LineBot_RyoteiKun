@@ -324,7 +324,11 @@ def sendFexMessage(event,place,time,pref):
             )
 
 
-    message = FlexSendMessage(alt_text="hello", contents=bubble)
+    # message = FlexSendMessage(alt_text="hello", contents=bubble)
+    message =[]
+    message.append(FlexSendMessage(alt_text="hello", contents=bubble))
+    message.append(TextSendMessage(text='これでどうかな？'))
+    
     line_bot_api.reply_message(
         event.reply_token,
         message
@@ -536,7 +540,6 @@ def sampleFlake(event):
 # -------------------------------------------
 def mainRoutine(event=0,time=0,pref='大阪'):
     Journey.MaxTravelTime = time
-    print("pref"+pref)
     # ----------------------------------------------------------
     #   DB初期化
     # ----------------------------------------------------------
@@ -632,8 +635,6 @@ def mainRoutine(event=0,time=0,pref='大阪'):
         sendFexMessage(event,jouneySpot,moveTime,pref = pref)
 
 
-
-
 def AddSpot(event=0,text=""):
     # 名前も受け取る？
     lat, lng = getPointFromGoogleAPI(spot.name)
@@ -670,9 +671,6 @@ def AddSpot(event=0,text=""):
         TextSendMessage(text='スポットを登録したよ！'))
 
     return True
-
-
-
 
 
 # -------------------------------------------
@@ -771,8 +769,6 @@ def handle_message(event):
         mainRoutine(event,22800,"大阪")
         return True
 
-
-
     # -------------------------------------------
     # 状態とテキストに応じて処理を記述
     # -------------------------------------------
@@ -845,18 +841,11 @@ def handle_message(event):
 
 
 
-
-
-
 # -------------------------------------------
 # バックエンド側API
 # -------------------------------------------
 @app.route("/")
 def hello():
-    # user = UserState()
-    # user.user_id = "user_id"
-    # user.state = "Journey.NowState"
-    # db.session.commit()
     return "Hello World!"
 
 #公共クラウドシステムからデータ取得(未使用)
