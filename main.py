@@ -326,10 +326,8 @@ def sendFexMessage(event,place,time,pref):
                 )
             )
 
-
-    # message = FlexSendMessage(alt_text="hello", contents=bubble)
     message =[]
-    message.append(FlexSendMessage(alt_text="hello", contents=bubble))
+    message.append(FlexSendMessage(alt_text="旅程を作成したよ！", contents=bubble))
     message.append(TextSendMessage(text='これでどうかな？'))
 
     line_bot_api.reply_message(
@@ -498,13 +496,13 @@ def getPref(text):
 
 # 何時から何時まで？
 def getTime(text):
-    m = re.match('.*(\d{2}):(\d{2}).*[-|~|〜|ー|(から)].*(\d{2}):(\d{2}).*', text)
+    m = re.match('.*(\d\d?):(\d\d?).*[-|~|〜|ー|(から)].*(\d\d?):(\d\d?).*', text)
     if m:
         starttime =  m.group(1)+":"+m.group(2)
         endtime   =  m.group(3)+":"+m.group(4)
         return starttime,endtime
 
-    m = re.match('.*(\d{2})時.*[-|~|〜|ー|(から)].*(\d{2})時.*', text)
+    m = re.match('.*(\d\d?)時.*[-|~|〜|ー|(から)].*(\d\d?)時.*', text)
     if m:
         starttime =  m.group(1)+":00"
         endtime   =  m.group(2)+":00"
