@@ -313,8 +313,8 @@ def sendFexMessage(event,place,time,pref):
     message.append(FlexSendMessage(alt_text="旅程を作成したよ！", contents=bubble))
     message.append(TextSendMessage(text='これでどうかな？',
                                    quick_reply=QuickReply(items=[
-               QuickReplyButton(action=MessageAction(type = "message",label="OK", text="plan_result_ok")),
-               QuickReplyButton(action=MessageAction(type = "message",label="もう一回！", text="plan_result_redo"))
+               QuickReplyButton(action=MessageAction(type = "message",label="OK", text="OK")),
+               QuickReplyButton(action=MessageAction(type = "message",label="もう一回！", text="もう一回！"))
            ]))
 
         )
@@ -573,9 +573,9 @@ def handle_message(event):
     if (stateInstance.state == 'listen_time_plan'):
         if (getTime(text) != False):
             print("◆getTime")
-            stateInstance.StartTime,stateInstance.EndTime = getTime(text)
-            dt1 = datetime.datetime.strptime(stateInstance.StartTime, '%H:%M')
-            dt2 = datetime.datetime.strptime(stateInstance.EndTime, '%H:%M')
+            stateInstance.startTime,stateInstance.endTime = getTime(text)
+            dt1 = datetime.datetime.strptime(stateInstance.startTime, '%H:%M')
+            dt2 = datetime.datetime.strptime(stateInstance.endTime, '%H:%M')
             MaxTravelingSeconds = (dt2 - dt1).total_seconds()
 
             print(str(MaxTravelingSeconds)+" sec")
@@ -585,12 +585,12 @@ def handle_message(event):
 
 
     if (stateInstance.state == 'listen_reply'):
-        if (text == 'plan_result_ok'):
+        if (text == 'OK'):
             stateInstance.state = 'listen_word'
 
-        if (text == 'plan_result_redo'):
-            dt1 = datetime.datetime.strptime(stateInstance.StartTime, '%H:%M')
-            dt2 = datetime.datetime.strptime(stateInstance.EndTime, '%H:%M')
+        if (text == 'もう一回！'):
+            dt1 = datetime.datetime.strptime(stateInstance.startTime, '%H:%M')
+            dt2 = datetime.datetime.strptime(stateInstance.endTime, '%H:%M')
             MaxTravelingSeconds = (dt2 - dt1).total_seconds()
 
             mainRoutine(event,MaxTravelingSeconds,stateInstance.pref,stateInstance.StayTime)
