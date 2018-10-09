@@ -551,7 +551,7 @@ def handle_message(event):
     # userJouneyData = Journey()
     stateInstance = UserState()
 
-    NowState='listen_word'
+    stateInstance.NowState='listen_word'
     print("------------GetTextMessage------------\n\n\n\n")
     print(user_id)
     print(text)
@@ -561,10 +561,10 @@ def handle_message(event):
     if (db.session.query(UserState).filter(UserState.user_id == user_id ).count() > 0 ):
         users = db.session.query(UserState).filter(UserState.user_id == user_id)
         for user in users:
-            NowState = user.state
+            # NowState = user.state
             stateInstance = user
 
-    print(NowState)
+    print(stateInstance.NowState)
 
 
     # -------------------------------------------
@@ -578,51 +578,51 @@ def handle_message(event):
     # 状態とテキストに応じて処理を記述
     # -------------------------------------------
     IsConversation = False
-    if (NowState == 'listen_word'):
+    if (stateInstance.NowState == 'listen_word'):
         if (getJourney(text)):
             print("◆getJourney")
-            NowState = 'listen_pref_plan'
+            stateInstance.NowState = 'listen_pref_plan'
         else:
             IsConversation = True
 
 
-    if (NowState == 'listen_pref_plan'):
+    if (stateInstance.NowState == 'listen_pref_plan'):
         if (getPref(text) != False):
             print("◆getPref")
-            Journey.pref = getPref(text)
+            stateInstance.pref = getPref(text)
             print(Journey.pref)
-            NowState = 'listen_time_plan'
+            stateInstance.NowState = 'listen_time_plan'
 
 
-    if (NowState == 'listen_time_plan'):
+    if (stateInstance.NowState == 'listen_time_plan'):
         if (getTime(text) != False):
             print("◆getTime")
-            Journey.StartTime,Journey.EndTime = getTime(text)
+            stateInstance.StartTime,stateInstance.EndTime = getTime(text)
             dt1 = datetime.datetime.strptime(Journey.StartTime, '%H:%M')
             dt2 = datetime.datetime.strptime(Journey.EndTime, '%H:%M')
             Journey.MaxTravelTime = (dt2 - dt1).total_seconds()
-            mainRoutine(event,Journey.MaxTravelTime,Journey.pref)
-            NowState = 'listen_word'
+            mainRoutine(event,Journey.MaxTravelTime,stateInstance.pref)
+            stateInstance.NowState = 'listen_word'
 
 
     if (getStop(text)):
         print("◆GetStop")
-        NowState = 'stop'
+        stateInstance.NowState = 'stop'
 
-    print(NowState)
+    print(stateInstance.NowState)
 
     # -------------------------------------------
     # 状態に応じて返信メッセージを記述
     # -------------------------------------------
-    if (NowState == 'listen_word'):
+    if (stateInstance.NowState == 'listen_word'):
         if IsConversation:# 雑談フラグ作って、それが1なら返す
             line_bot_api.reply_message(event.reply_token,TextSendMessage(text='なにがしたい〜？旅行って言ってくれたら計画立てるよ'))
-    elif (NowState =='listen_pref_plan'):
+    elif (stateInstance.NowState =='listen_pref_plan'):
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='どの県にいきたい？'))
-    elif (NowState =='listen_time_plan'):
+    elif (stateInstance.NowState =='listen_time_plan'):
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='何時から何時まで？\n 「hh:mmm-hh:mm」の形や「〇〇時から〇〇時まで」の形で入力してね'))
-    elif (NowState == 'stop'):
-        NowState = 'listen_word'
+    elif (stateInstance.NowState == 'stop'):
+        stateInstance.NowState = 'listen_word'
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='計画を中止したよ'))
 
 
@@ -634,14 +634,14 @@ def handle_message(event):
         print("updateState")
         users = db.session.query(UserState).filter(UserState.user_id == user_id)
         for user in users:
-            user.state = NowState
+            user = stateInstance
     else:
         user = UserState()
         user.user_id = user_id
-        user.state = NowState
+        user.state = stateInstance.NowState
         db.session.add(user)
     db.session.commit()
-    print(NowState)
+    print(stateInstance.NowState)
 
 
 
