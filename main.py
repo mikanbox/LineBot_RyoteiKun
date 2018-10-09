@@ -124,25 +124,37 @@ def calcPath(location, e, c, time, stayTime=3600):
     # -------------------------------------------
     # 制約式
     # -------------------------------------------   
+    # 全体時間制約
     problem += sum(x[i, j] for i in location for j in location) + \
         sum(y[i] * stayTime for i in location) <= time, "Constraint_leq"
 
+
     for i in location:
         for j in location:
-            if i == j:
-                problem += x[i, j] * 2 <= 1, "Constraint_leq_{:}_{:}".format(i, j)
-            continue
+            # if i == j:
+            #     problem += x[i, j] * 2 <= 1, "Constraint_leq_{:}_{:}".format(i, j)
+            # continue
             problem += sum(x[i, j] + x[j, i]) <= 1, "Constraint_leq_{:}_{:}".format(i, j)
 
+    # 自身パス除去制約
     for i in location:
         problem += x[i, i] == 0, "Constraint_node_eq{:}".format(i)
 
+    # 
+    # for i in location:
+    #     problem += sum(x[i, j] + x[j, i] for j in location) <= 2, "Constraint_node_{:}".format(i)
     for i in location:
-        problem += sum(x[i, j] + x[j, i] for j in location) <= 2, "Constraint_node_{:}".format(i)
+        problem += sum(sum(x[j, i] for j in location) - sum(x[i,k]  for k in location)) >= 0, "Constraint_node_{:}".format(i)
 
+
+    # y起動制約
     for i in location:
         problem += sum(x[i, j] for j in location) <= y[i], "Constraint_node_y_{:}".format(i)
+    for i in location:
+        problem += sum(x[j, i] for j in location) <= y[i], "Constraint_node_y_{:}".format(i)
 
+
+    # 部分巡回路除去制約
     problem += sum(y[i] for i in location) - sum(x[i, j] for i in location for j in location) == 1, "Constraint_eq2"
 
     # -------------------------------------------
@@ -252,14 +264,10 @@ def CreateResult(route, point):
     return jouneylist,jouneyTime
 
 
-
-
 def InitDB():
     Spot.metadata.create_all(bind = ENGINE)
     SpotDist.metadata.create_all(bind = ENGINE)
     UserState.metadata.create_all(bind = ENGINE)
-
-
 
 
 def sendFexMessage(event,place,time,pref):
@@ -328,11 +336,151 @@ def sendFexMessage(event,place,time,pref):
     message =[]
     message.append(FlexSendMessage(alt_text="hello", contents=bubble))
     message.append(TextSendMessage(text='これでどうかな？'))
-    
+
     line_bot_api.reply_message(
         event.reply_token,
         message
     )
+
+
+
+# -------------------------------------------
+# メインルーチン
+# -------------------------------------------
+def mainRoutine(event=0,time=0,pref='大阪'):
+    Journey.MaxTravelTime = time
+    # ----------------------------------------------------------
+    #   DB初期化
+    # ----------------------------------------------------------
+    InitDB()
+    # ----------------------------------------------------------
+    #   DBから要素取得とソート,GoogleAPIで位置取得
+    # ----------------------------------------------------------
+    spots = db.session.query(Spot).filter(Spot.pref == pref).order_by('score')
+    for spot in spots:
+        if (spot.lat == None):
+            print(spot.name+" : 新規追加操作")
+            spot.lat, spot.lng = getPointFromGoogleAPI(spot.name)
+            db.session.commit()
+    # # ----------------------------------------------------------
+    # # BaseQueryオブジェクトから別のオブジェクトへ変更
+    # # ----------------------------------------------------------
+    for spot in spots:
+        if (spot.lat != None):
+            Journey.location.append(spot.name)
+            Journey.locationValue[spot.name] = spot.score
+
+    Journey.location = random.sample(Journey.location,5)
+
+    # # ----------------------------------------------------------
+    # #   i-jパスの設定
+    # # ----------------------------------------------------------
+    for i in spots:
+        if (i.name not in Journey.location ):
+            continue
+        for j in spots:
+            if (j.name not in Journey.location ):
+                continue
+            if (j.name == i.name):
+                continue
+
+            if (db.session.query(SpotDist).filter(SpotDist.id_from == i.id).filter(SpotDist.id_to == j.id).count() > 0 ):
+                r = db.session.query(SpotDist).filter(SpotDist.id_from == i.id).filter(SpotDist.id_to == j.id)
+                for r_elements in r:
+                    Journey.timeEdge[i.name,j.name] = r_elements.time
+                    Journey.timeEdge[j.name,i.name] = r_elements.time
+                    print("Data is discovered")
+                continue
+
+            if (db.session.query(SpotDist).filter(SpotDist.id_from == j.id).filter(SpotDist.id_to == i.id).count() > 0 ):
+                r = db.session.query(SpotDist).filter(SpotDist.id_from == i.id).filter(SpotDist.id_to == j.id)
+                for r_elements in r:
+                    Journey.timeEdge[i.name,j.name] = r.time
+                    Journey.timeEdge[j.name,i.name] = r.time
+                    print("Data is discovered")
+                continue
+
+
+                
+            # i-jパスがない時
+            spotdist = SpotDist()
+            spotdist.time = getPathromGoogleAPI([i.lat,i.lng],[j.lat,j.lng])
+            spotdist.id_from = i.id
+            spotdist.id_to   = j.id
+            db.session.add(spotdist)
+            db.session.commit()
+            Journey.timeEdge[i.name,j.name] = spotdist.time
+            Journey.timeEdge[j.name,i.name] = spotdist.time
+            print("Call DirectionAPI : " + i.name +"-"+ j.name +"   time: " +str(spotdist.time) )
+
+    # # ----------------------------------------------------------
+    # #   i-jコストの設定
+    # # ----------------------------------------------------------
+    for i in Journey.location:
+        for j in Journey.location:
+            Journey.PointValue[i, j] = Journey.locationValue[i] + Journey.locationValue[j]
+            Journey.PointValue[j, i] = Journey.PointValue[i, j]
+
+
+
+    # # ----------------------------------------------------------
+    # #   最適化問題の計算
+    # # ----------------------------------------------------------
+    route, point = calcPath(Journey.location, Journey.timeEdge,
+                            Journey.PointValue, Journey.MaxTravelTime, Journey.StayTime)
+    # # ----------------------------------------------------------
+    # #   返送用メッセージを生成
+    # # ----------------------------------------------------------
+    # message = CreateResult(route, point)
+    jouneySpot,moveTime = CreateResult(route, point)
+
+    # # ----------------------------------------------------------
+    # #   返送用Line構造体を生成
+    # # ----------------------------------------------------------
+
+    if (jouneySpot == None):
+        line_bot_api.reply_message(event.reply_token,TextSendMessage(text='可能なプランがありません！'))
+    else:
+        sendFexMessage(event,jouneySpot,moveTime,pref = pref)
+
+
+def AddSpot(event=0,text=""):
+    # 名前も受け取る？
+    lat, lng = getPointFromGoogleAPI(spot.name)
+    spotName = ""
+    spotScore =0
+    if (lat == None):
+        return False
+
+    if (db.session.query(Spot).filter(Spot.name == s.text).count() > 0):
+        return False
+
+    #もしgoogleで検索できたら,,,
+    # DBに追加
+
+    # spots = list()
+    # for (s, sc) in zip(spotName, spotScore):
+    #     spot = Spot()
+    #     spot.name =s
+    #     spot.pref = pref
+    #     spot.score = float(sc.text)
+    #     spots.append(spot)
+    # db.session.add_all(spots)
+    # db.session.commit()
+    spot = Spot()
+    spot.lat = lat
+    spot.lng = lng
+    spot.name = spotName
+    spot.pref = pref
+    spot.score = float(spotScore)
+    db.session.add(spot)
+    db.session.commit()
+
+    line_bot_api.reply_message(event.reply_token,
+        TextSendMessage(text='スポットを登録したよ！'))
+
+    return True
+
 
 
 
@@ -532,146 +680,6 @@ def sampleFlake(event):
         event.reply_token,
         message
     )
-
-
-
-# -------------------------------------------
-# メインルーチン
-# -------------------------------------------
-def mainRoutine(event=0,time=0,pref='大阪'):
-    Journey.MaxTravelTime = time
-    # ----------------------------------------------------------
-    #   DB初期化
-    # ----------------------------------------------------------
-    InitDB()
-    # ----------------------------------------------------------
-    #   DBから要素取得とソート,GoogleAPIで位置取得
-    # ----------------------------------------------------------
-    spots = db.session.query(Spot).filter(Spot.pref == pref).order_by('score')
-    for spot in spots:
-        if (spot.lat == None):
-            print(spot.name+" : 新規追加操作")
-            spot.lat, spot.lng = getPointFromGoogleAPI(spot.name)
-            db.session.commit()
-    # # ----------------------------------------------------------
-    # # BaseQueryオブジェクトから別のオブジェクトへ変更
-    # # ----------------------------------------------------------
-    for spot in spots:
-        if (spot.lat != None):
-            Journey.location.append(spot.name)
-            Journey.locationValue[spot.name] = spot.score
-
-    Journey.location = random.sample(Journey.location,5)
-
-    # # ----------------------------------------------------------
-    # #   i-jパスの設定
-    # # ----------------------------------------------------------
-    for i in spots:
-        if (i.name not in Journey.location ):
-            continue
-        for j in spots:
-            if (j.name not in Journey.location ):
-                continue
-            if (j.name == i.name):
-                continue
-
-            if (db.session.query(SpotDist).filter(SpotDist.id_from == i.id).filter(SpotDist.id_to == j.id).count() > 0 ):
-                r = db.session.query(SpotDist).filter(SpotDist.id_from == i.id).filter(SpotDist.id_to == j.id)
-                for r_elements in r:
-                    Journey.timeEdge[i.name,j.name] = r_elements.time
-                    Journey.timeEdge[j.name,i.name] = r_elements.time
-                    print("Data is discovered")
-                continue
-
-            if (db.session.query(SpotDist).filter(SpotDist.id_from == j.id).filter(SpotDist.id_to == i.id).count() > 0 ):
-                r = db.session.query(SpotDist).filter(SpotDist.id_from == i.id).filter(SpotDist.id_to == j.id)
-                for r_elements in r:
-                    Journey.timeEdge[i.name,j.name] = r.time
-                    Journey.timeEdge[j.name,i.name] = r.time
-                    print("Data is discovered")
-                continue
-
-
-                
-            # i-jパスがない時
-            spotdist = SpotDist()
-            spotdist.time = getPathromGoogleAPI([i.lat,i.lng],[j.lat,j.lng])
-            spotdist.id_from = i.id
-            spotdist.id_to   = j.id
-            db.session.add(spotdist)
-            db.session.commit()
-            Journey.timeEdge[i.name,j.name] = spotdist.time
-            Journey.timeEdge[j.name,i.name] = spotdist.time
-            print("Call DirectionAPI : " + i.name +"-"+ j.name +"   time: " +str(spotdist.time) )
-
-    # # ----------------------------------------------------------
-    # #   i-jコストの設定
-    # # ----------------------------------------------------------
-    for i in Journey.location:
-        for j in Journey.location:
-            Journey.PointValue[i, j] = Journey.locationValue[i] + Journey.locationValue[j]
-            Journey.PointValue[j, i] = Journey.PointValue[i, j]
-
-
-
-    # # ----------------------------------------------------------
-    # #   最適化問題の計算
-    # # ----------------------------------------------------------
-    route, point = calcPath(Journey.location, Journey.timeEdge,
-                            Journey.PointValue, Journey.MaxTravelTime, Journey.StayTime)
-    # # ----------------------------------------------------------
-    # #   返送用メッセージを生成
-    # # ----------------------------------------------------------
-    # message = CreateResult(route, point)
-    jouneySpot,moveTime = CreateResult(route, point)
-
-    # # ----------------------------------------------------------
-    # #   返送用Line構造体を生成
-    # # ----------------------------------------------------------
-
-    if (jouneySpot == None):
-        line_bot_api.reply_message(event.reply_token,TextSendMessage(text='可能なプランがありません！'))
-    else:
-        sendFexMessage(event,jouneySpot,moveTime,pref = pref)
-
-
-def AddSpot(event=0,text=""):
-    # 名前も受け取る？
-    lat, lng = getPointFromGoogleAPI(spot.name)
-    spotName = ""
-    spotScore =0
-    if (lat == None):
-        return False
-
-    if (db.session.query(Spot).filter(Spot.name == s.text).count() > 0):
-        return False
-
-    #もしgoogleで検索できたら,,,
-    # DBに追加
-
-    # spots = list()
-    # for (s, sc) in zip(spotName, spotScore):
-    #     spot = Spot()
-    #     spot.name =s
-    #     spot.pref = pref
-    #     spot.score = float(sc.text)
-    #     spots.append(spot)
-    # db.session.add_all(spots)
-    # db.session.commit()
-    spot = Spot()
-    spot.lat = lat
-    spot.lng = lng
-    spot.name = spotName
-    spot.pref = pref
-    spot.score = float(spotScore)
-    db.session.add(spot)
-    db.session.commit()
-
-    line_bot_api.reply_message(event.reply_token,
-        TextSendMessage(text='スポットを登録したよ！'))
-
-    return True
-
 
 # -------------------------------------------
 # regexによる言語処理
