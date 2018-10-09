@@ -572,6 +572,8 @@ def handle_message(event):
             dt2 = datetime.datetime.strptime(stateInstance.EndTime, '%H:%M')
             MaxTravelingSeconds = (dt2 - dt1).total_seconds()
 
+            print(str(MaxTravelingSeconds)+" sec")
+
             mainRoutine(event,MaxTravelingSeconds,stateInstance.pref,stateInstance.StayTime)
             stateInstance.state = 'listen_word'
 
