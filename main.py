@@ -551,7 +551,7 @@ def handle_message(event):
     # userJouneyData = Journey()
     stateInstance = UserState()
 
-    stateInstance.NowState='listen_word'
+    stateInstance.state='listen_word'
     print("------------GetTextMessage------------\n\n\n\n")
     print(user_id)
     print(text)
@@ -564,7 +564,7 @@ def handle_message(event):
             # NowState = user.state
             stateInstance = user
 
-    print(stateInstance.NowState)
+    print(stateInstance.state)
 
 
     # -------------------------------------------
@@ -578,23 +578,23 @@ def handle_message(event):
     # 状態とテキストに応じて処理を記述
     # -------------------------------------------
     IsConversation = False
-    if (stateInstance.NowState == 'listen_word'):
+    if (stateInstance.state == 'listen_word'):
         if (getJourney(text)):
             print("◆getJourney")
-            stateInstance.NowState = 'listen_pref_plan'
+            stateInstance.state = 'listen_pref_plan'
         else:
             IsConversation = True
 
 
-    if (stateInstance.NowState == 'listen_pref_plan'):
+    if (stateInstance.state == 'listen_pref_plan'):
         if (getPref(text) != False):
             print("◆getPref")
             stateInstance.pref = getPref(text)
             print(Journey.pref)
-            stateInstance.NowState = 'listen_time_plan'
+            stateInstance.state = 'listen_time_plan'
 
 
-    if (stateInstance.NowState == 'listen_time_plan'):
+    if (stateInstance.state == 'listen_time_plan'):
         if (getTime(text) != False):
             print("◆getTime")
             stateInstance.StartTime,stateInstance.EndTime = getTime(text)
@@ -602,27 +602,27 @@ def handle_message(event):
             dt2 = datetime.datetime.strptime(Journey.EndTime, '%H:%M')
             Journey.MaxTravelTime = (dt2 - dt1).total_seconds()
             mainRoutine(event,Journey.MaxTravelTime,stateInstance.pref)
-            stateInstance.NowState = 'listen_word'
+            stateInstance.state = 'listen_word'
 
 
     if (getStop(text)):
         print("◆GetStop")
-        stateInstance.NowState = 'stop'
+        stateInstance.state = 'stop'
 
-    print(stateInstance.NowState)
+    print(stateInstance.state)
 
     # -------------------------------------------
     # 状態に応じて返信メッセージを記述
     # -------------------------------------------
-    if (stateInstance.NowState == 'listen_word'):
+    if (stateInstance.state == 'listen_word'):
         if IsConversation:# 雑談フラグ作って、それが1なら返す
             line_bot_api.reply_message(event.reply_token,TextSendMessage(text='なにがしたい〜？旅行って言ってくれたら計画立てるよ'))
-    elif (stateInstance.NowState =='listen_pref_plan'):
+    elif (stateInstance.state =='listen_pref_plan'):
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='どの県にいきたい？'))
-    elif (stateInstance.NowState =='listen_time_plan'):
+    elif (stateInstance.state =='listen_time_plan'):
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='何時から何時まで？\n 「hh:mmm-hh:mm」の形や「〇〇時から〇〇時まで」の形で入力してね'))
-    elif (stateInstance.NowState == 'stop'):
-        stateInstance.NowState = 'listen_word'
+    elif (stateInstance.state == 'stop'):
+        stateInstance.state = 'listen_word'
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='計画を中止したよ'))
 
 
@@ -638,10 +638,10 @@ def handle_message(event):
     else:
         user = UserState()
         user.user_id = user_id
-        user.state = stateInstance.NowState
+        user.state = stateInstance.state
         db.session.add(user)
     db.session.commit()
-    print(stateInstance.NowState)
+    print(stateInstance.state)
 
 
 
