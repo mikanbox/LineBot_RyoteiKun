@@ -533,7 +533,8 @@ def handle_message(event):
     # -------------------------------------------  
     if (db.session.query(UserState).filter(UserState.user_id == user_id ).count() > 0 ):
         users = db.session.query(UserState).filter(UserState.user_id == user_id)
-        stateInstance = users[0]
+        for user in users:
+            stateInstance = user
             
     print(stateInstance.state)
 
@@ -580,7 +581,7 @@ def handle_message(event):
 
     if (getHelp(text)):
         print("◆GetHelp")
-        line_bot_api.reply_message(event.reply_token,TextSendMessage(text='■旅行のプランを立ててもらいたい時\n1.「旅行」というワードを入れてつぶやく\n2.行きたい県を入力\n3.始まりと終わりの時刻を入力\n4.おすすめのプランを提案してくれるよ \n■自分のお気に入りスポットを登録したい時\n1.「登録」というワードを入れてつぶやく\n2.登録したいスポットの名前を入力\n■使い方がわからないとき...\n1.「Help」「ヘルプ」といったワードをつぶやく',wrap=True))
+        line_bot_api.reply_message(event.reply_token,TextSendMessage(text='ヘルプだよ!\n\n■旅行のプランを立ててもらいたい時\n1.「旅行」というワードを入れてつぶやく\n2.行きたい県を入力\n3.始まりと終わりの時刻を入力\n4.おすすめのプランを提案してくれるよ \n■自分のお気に入りスポットを登録したい時\n1.「登録」というワードを入れてつぶやく\n2.登録したいスポットの名前を入力\n■使い方がわからないとき...\n1.「Help」「ヘルプ」といったワードをつぶやく',wrap=True))
         return 
 
     if (getSpot(text)):
@@ -626,7 +627,8 @@ def handle_message(event):
     if (db.session.query(UserState).filter(UserState.user_id == user_id).count() > 0 ):
         print("updateState")
         users = db.session.query(UserState).filter(UserState.user_id == user_id)
-        users[0] = stateInstance
+        for user in users:
+            stateInstance = user
     else:
         user = UserState()
         user = stateInstance
