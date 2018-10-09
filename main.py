@@ -162,14 +162,7 @@ def calcPath(location, e, c, time, stayTime=3600):
     status = problem.solve()
     # print("Status", pulp.LpStatus[status])
     # print(problem)
-    # print("Result")
 
-    # for i in Journey.location:
-    #     for j in Journey.location:
-    #         print(x[i, j], x[i, j].value())
-
-    # for i in Journey.location:
-    #     print(y[i], y[i].value())
 
     return x, y
 
@@ -177,20 +170,20 @@ def calcPath(location, e, c, time, stayTime=3600):
 # -------------------------------------------
 # 計算結果を解析しテキストを生成:(routeはエッジ,ポイントは点)
 # -------------------------------------------
-def CreateResult(route, point):
-    print("\n ノード \n")
-    for i in Journey.location:
-        if (point[i].value() == 1):
-            print(i)
+def CreateResult(route, point,location,timeEdge):
+    # print("\n ノード \n")
+    # for i in Journey.location:
+    #     if (point[i].value() == 1):
+    #         print(i)
 
-    print("\n パス \n")
-    for i in Journey.location:
-        for j in Journey.location:
-            if (route[i, j].value() == 1):
-                print(i + "  to  " + j)
+    # print("\n パス \n")
+    # for i in Journey.location:
+    #     for j in Journey.location:
+    #         if (route[i, j].value() == 1):
+    #             print(i + "  to  " + j)
 
     pointCount = 0
-    for i in Journey.location:
+    for i in location:
         if (point[i].value() == 1):
             pointCount+=1
 
@@ -204,9 +197,9 @@ def CreateResult(route, point):
     # -------------------------------------------
     # edge初期化,代入(内包) key:value if for
     # -------------------------------------------   
-    edge = { (i, j) :0 for i in Journey.location for j in Journey.location}
-    for i in Journey.location:
-        for j in Journey.location:
+    edge = { (i, j) :0 for i in location for j in location}
+    for i in location:
+        for j in location:
             if route[i, j].value() == 1:
                 edge[i,j] = 1
                 edge[j,i] = 1
@@ -214,9 +207,9 @@ def CreateResult(route, point):
     # -------------------------------------------
     # スタートの特定:[i-j]が端点ならcount=2
     # -------------------------------------------   
-    count = {i:0 for i in Journey.location}
-    for i in Journey.location:
-        for j in Journey.location:
+    count = {i:0 for i in location}
+    for i in location:
+        for j in location:
             if (edge[i, j] == 1):
                 count[i] += 1
                 count[j] += 1
@@ -226,12 +219,12 @@ def CreateResult(route, point):
     # -------------------------------------------  
     startLocation = 0
     LastLocation = 0
-    for i in Journey.location:
+    for i in location:
         if (count[i] == 2):
             startLocation = i
             LastLocation = i
     if (startLocation ==0):
-        startLocation = Journey.location[0]
+        startLocation = location[0]
         LastLocation = startLocation
 
 
@@ -241,18 +234,18 @@ def CreateResult(route, point):
     jouneylist = []
     jouneyTime = []
     count = 1;
-    for s in range(len(Journey.location)):#スポットの回数やる（あってる？)
-        for j in Journey.location:
+    for s in range(len(location)):#スポットの回数やる（あってる？)
+        for j in location:
             if (edge[startLocation, j] == 1 and LastLocation != j):#スタートからjが存在し,jは前にたどった点じゃないなら
-                jouneyTime.append(Journey.timeEdge[startLocation, j])
+                jouneyTime.append(timeEdge[startLocation, j])
                 jouneylist.append(startLocation)
 
                 LastLocation = startLocation
                 startLocation = j
                 count+=1
-            if ( count >= len(Journey.location)):
+            if ( count >= len(location)):
                 break
-        if ( count >= len(Journey.location)):
+        if ( count >= len(location)):
             break
 
 
@@ -339,8 +332,7 @@ def sendFexMessage(event,place,time,pref):
 # -------------------------------------------
 # メインルーチン
 # -------------------------------------------
-def mainRoutine(event=0,time=0,pref='大阪'):
-    Journey.MaxTravelTime = time
+def mainRoutine(event=0,time=0,pref='大阪',StayTime =3600):
     # ----------------------------------------------------------
     #   DB初期化
     # ----------------------------------------------------------
@@ -351,27 +343,30 @@ def mainRoutine(event=0,time=0,pref='大阪'):
     spots = db.session.query(Spot).filter(Spot.pref == pref).order_by('score')
     for spot in spots:
         if (spot.lat == None):
-            print(spot.name+" : 新規追加操作")
             spot.lat, spot.lng = getPointFromGoogleAPI(spot.name)
             db.session.commit()
+
     # # ----------------------------------------------------------
     # # BaseQueryオブジェクトから別のオブジェクトへ変更
     # # ----------------------------------------------------------
+    location = []
+    locationValue = {}
     for spot in spots:
         if (spot.lat != None):
-            Journey.location.append(spot.name)
-            Journey.locationValue[spot.name] = spot.score
+            location.append(spot.name)
+            locationValue[spot.name] = spot.score
 
-    Journey.location = random.sample(Journey.location,5)
+    location = random.sample(location,5)
 
     # # ----------------------------------------------------------
     # #   i-jパスの設定
     # # ----------------------------------------------------------
+    timeEdge ={}
     for i in spots:
-        if (i.name not in Journey.location ):
+        if (i.name not in location ):
             continue
         for j in spots:
-            if (j.name not in Journey.location ):
+            if (j.name not in location ):
                 continue
             if (j.name == i.name):
                 continue
@@ -379,16 +374,14 @@ def mainRoutine(event=0,time=0,pref='大阪'):
             if (db.session.query(SpotDist).filter(SpotDist.id_from == i.id).filter(SpotDist.id_to == j.id).count() > 0 ):
                 r = db.session.query(SpotDist).filter(SpotDist.id_from == i.id).filter(SpotDist.id_to == j.id)
                 for r_elements in r:
-                    Journey.timeEdge[i.name,j.name] = r_elements.time
-                    Journey.timeEdge[j.name,i.name] = r_elements.time
+                    timeEdge[i.name,j.name] = timeEdge[j.name,i.name] = r_elements.time
                     print("Data is discovered")
                 continue
 
             if (db.session.query(SpotDist).filter(SpotDist.id_from == j.id).filter(SpotDist.id_to == i.id).count() > 0 ):
                 r = db.session.query(SpotDist).filter(SpotDist.id_from == i.id).filter(SpotDist.id_to == j.id)
                 for r_elements in r:
-                    Journey.timeEdge[i.name,j.name] = r.time
-                    Journey.timeEdge[j.name,i.name] = r.time
+                    timeEdge[i.name,j.name] = timeEdge[j.name,i.name] = r.time
                     print("Data is discovered")
                 continue
 
@@ -397,33 +390,30 @@ def mainRoutine(event=0,time=0,pref='大阪'):
             # i-jパスがない時
             spotdist = SpotDist()
             spotdist.time = getPathromGoogleAPI([i.lat,i.lng],[j.lat,j.lng])
-            spotdist.id_from = i.id
-            spotdist.id_to   = j.id
+            spotdist.id_from,spotdist.id_to = i.id,j.id
             db.session.add(spotdist)
             db.session.commit()
-            Journey.timeEdge[i.name,j.name] = spotdist.time
-            Journey.timeEdge[j.name,i.name] = spotdist.time
+            timeEdge[i.name,j.name] = timeEdge[j.name,i.name] = spotdist.time
             print("Call DirectionAPI : " + i.name +"-"+ j.name +"   time: " +str(spotdist.time) )
 
     # # ----------------------------------------------------------
     # #   i-jコストの設定
     # # ----------------------------------------------------------
-    for i in Journey.location:
-        for j in Journey.location:
-            Journey.PointValue[i, j] = Journey.locationValue[i] + Journey.locationValue[j]
-            Journey.PointValue[j, i] = Journey.PointValue[i, j]
+    PointValue ={}
+    for i in location:
+        for j in location:
+            PointValue[i, j] = PointValue[j, i] = locationValue[i] + locationValue[j]
 
 
     # # ----------------------------------------------------------
     # #   最適化問題の計算
     # # ----------------------------------------------------------
-    route, point = calcPath(Journey.location, Journey.timeEdge,
-                            Journey.PointValue, Journey.MaxTravelTime, Journey.StayTime)
+    route, point = calcPath(location, timeEdge, PointValue, time , StayTime)
     # # ----------------------------------------------------------
     # #   返送用メッセージを生成
     # # ----------------------------------------------------------
     # message = CreateResult(route, point)
-    jouneySpot,moveTime = CreateResult(route, point)
+    jouneySpot,moveTime = CreateResult(route, point,location,timeEdge)
 
     # # ----------------------------------------------------------
     # #   返送用Line構造体を生成
@@ -596,8 +586,8 @@ def handle_message(event):
             stateInstance.StartTime,stateInstance.EndTime = getTime(text)
             dt1 = datetime.datetime.strptime(stateInstance.StartTime, '%H:%M')
             dt2 = datetime.datetime.strptime(stateInstance.EndTime, '%H:%M')
-            Journey.MaxTravelTime = (dt2 - dt1).total_seconds()
-            mainRoutine(event,Journey.MaxTravelTime,stateInstance.pref)
+            MaxTravelingSeconds = (dt2 - dt1).total_seconds()
+            mainRoutine(event,MaxTravelingSeconds,stateInstance.pref,stateInstance.StayTime)
             stateInstance.state = 'listen_word'
 
 
