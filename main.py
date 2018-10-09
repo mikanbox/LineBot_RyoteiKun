@@ -82,11 +82,12 @@ class UserState(db.Model):
     id    = db.Column(db.Integer, primary_key=True,autoincrement=True) # 追加
     user_id    = db.Column(db.String()) # 追加
     state      = db.Column(db.String()) # 追加
+    # pref = db.Column(db.String()) # 追加
+    # startTime = db.Column(db.String()) # 追加
+    # endTime = db.Column(db.String()) # 追加
+    # StayTime = db.Column(db.Integer()) # 追加
 
-    pref = db.Column(db.String()) # 追加
-    startTime = db.Column(db.String()) # 追加
-    endTime = db.Column(db.String()) # 追加
-    StayTime = db.Column(db.Integer()) # 追加
+    
 
 class Journey:
     step = 0
