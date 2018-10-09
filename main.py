@@ -545,12 +545,9 @@ def handle_message(event):
     text = event.message.text
     user_id = str(event.source.user_id)
 
-    # userJouneyData = Journey()
     stateInstance = UserState()
-
     stateInstance.state='listen_word'
     print("------------GetTextMessage------------\n\n\n\n")
-    print(user_id)
     print(text)
     # -------------------------------------------
     # ユーザーステート読込
@@ -559,7 +556,6 @@ def handle_message(event):
         users = db.session.query(UserState).filter(UserState.user_id == user_id)
         for user in users:
             stateInstance = user
-
     print(stateInstance.state)
 
 
@@ -578,8 +574,10 @@ def handle_message(event):
         if (getJourney(text)):
             print("◆getJourney")
             stateInstance.state = 'listen_pref_plan'
-        else:
+        else:# 意味のない会話
             IsConversation = True
+
+    print(text)
 
 
     if (stateInstance.state == 'listen_pref_plan'):
@@ -589,20 +587,16 @@ def handle_message(event):
             print(Journey.pref)
             stateInstance.state = 'listen_time_plan'
 
+    print(text)
+
 
     if (stateInstance.state == 'listen_time_plan'):
         if (getTime(text) != False):
             print("◆getTime")
             stateInstance.StartTime,stateInstance.EndTime = getTime(text)
-            print(stateInstance.StartTime)
-            print(stateInstance.EndTime)
-
             dt1 = datetime.datetime.strptime(stateInstance.StartTime, '%H:%M')
             dt2 = datetime.datetime.strptime(stateInstance.EndTime, '%H:%M')
             Journey.MaxTravelTime = (dt2 - dt1).total_seconds()
-
-            print(Journey.MaxTravelTime)
-
             mainRoutine(event,Journey.MaxTravelTime,stateInstance.pref)
             stateInstance.state = 'listen_word'
 
@@ -639,13 +633,15 @@ def handle_message(event):
             user = stateInstance
     else:
         user = UserState()
+        user = stateInstance
         user.user_id = user_id
         user.state = stateInstance.state
         db.session.add(user)
-    db.session.commit()
+    db.session.commit()# コミット
+
+
+
     print(stateInstance.state)
-
-
 
 # -------------------------------------------
 # バックエンド側API
