@@ -584,7 +584,7 @@ def handle_message(event):
         if (getPref(text) != False):
             print("◆getPref")
             stateInstance.pref = getPref(text)
-            print(Journey.pref)
+            print(stateInstance.pref)
             stateInstance.state = 'listen_time_plan'
 
     print(text)
