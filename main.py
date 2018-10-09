@@ -507,8 +507,6 @@ def getTime(text):
         starttime =  m.group(1)+":00"
         endtime   =  m.group(2)+":00"
 
-    print(starttime)
-    print(endtime)
         return starttime,endtime
 
     return False
@@ -599,6 +597,9 @@ def handle_message(event):
         if (getTime(text) != False):
             print("◆getTime")
             stateInstance.StartTime,stateInstance.EndTime = getTime(text)
+            print(stateInstance.StartTime)
+            print(stateInstance.EndTime)
+
             dt1 = datetime.datetime.strptime(stateInstance.StartTime, '%H:%M')
             dt2 = datetime.datetime.strptime(stateInstance.EndTime, '%H:%M')
             Journey.MaxTravelTime = (dt2 - dt1).total_seconds()
