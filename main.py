@@ -90,13 +90,11 @@ class UserState(db.Model):
 
 
 class Journey:
-    step = 0
-    pref = ""
-    # location = ['大阪城', '通天閣', '万博公園', 'スパワールド', '大阪大学', 'ポンポン山']  # 拠点名
     location = []
     locationValue = {}
     timeEdge = {}
     PointValue = {} # 実際はエッジの利益
+    pref = ""
     MaxTravelTime = 60 * 60 * 1
     StayTime = 3600
     StartTime = ""
@@ -550,6 +548,9 @@ def handle_message(event):
     text = event.message.text
     user_id = str(event.source.user_id)
 
+    # userJouneyData = Journey()
+    stateInstance = UserState()
+
     NowState='listen_word'
     print("------------GetTextMessage------------\n\n\n\n")
     print(user_id)
@@ -561,6 +562,7 @@ def handle_message(event):
         users = db.session.query(UserState).filter(UserState.user_id == user_id)
         for user in users:
             NowState = user.state
+            stateInstance = user
 
     print(NowState)
 
@@ -568,9 +570,6 @@ def handle_message(event):
     # -------------------------------------------
     # テスト用
     # -------------------------------------------
-    # if (text in "フレークサンプル"):
-    #     sampleFlake(event)
-    #     return True
     if (text in "テスト起動"):
         mainRoutine(event,22800,"大阪")
         return True
