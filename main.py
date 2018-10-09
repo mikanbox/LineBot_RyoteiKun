@@ -311,7 +311,11 @@ def sendFexMessage(event,place,time,pref):
 
     message =[]
     message.append(FlexSendMessage(alt_text="旅程を作成したよ！", contents=bubble))
-    message.append(TextSendMessage(text='これでどうかな？'))
+    message.append(TextSendMessage(text='これでどうかな？'),
+        quick_reply=QuickReply(items=[
+               QuickReplyButton(action=MessageAction(type = "message",label="OK", text="plan_result_ok")),
+               QuickReplyButton(action=MessageAction(type = "message",label="もう一回！", text="plan_result_redo"))
+           ]))
 
     line_bot_api.reply_message(
         event.reply_token,
@@ -575,7 +579,22 @@ def handle_message(event):
             print(str(MaxTravelingSeconds)+" sec")
 
             mainRoutine(event,MaxTravelingSeconds,stateInstance.pref,stateInstance.StayTime)
+            stateInstance.state = 'listen_reply'
+
+
+    if (stateInstance.state == 'listen_reply'):
+        if (text == 'plan_result_ok'):
             stateInstance.state = 'listen_word'
+
+        if (text == 'plan_result_redo'):
+            dt1 = datetime.datetime.strptime(stateInstance.StartTime, '%H:%M')
+            dt2 = datetime.datetime.strptime(stateInstance.EndTime, '%H:%M')
+            MaxTravelingSeconds = (dt2 - dt1).total_seconds()
+
+            mainRoutine(event,MaxTravelingSeconds,stateInstance.pref,stateInstance.StayTime)
+            stateInstance.state = 'listen_reply'
+
+
 
     if (getStop(text)):
         print("◆GetStop")
