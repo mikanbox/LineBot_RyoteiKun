@@ -433,7 +433,7 @@ def AddSpot(event=0,spotname=""):
     db.session.add(spot)
     db.session.commit()
 
-    message = "スポットを登録したよ！"
+    message = pref +" "+name + "　でスポットを登録したよ！"
     return message
 
 
