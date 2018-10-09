@@ -128,21 +128,16 @@ def calcPath(location, e, c, time, stayTime=3600):
     problem += sum(x[i, j] for i in location for j in location) + \
         sum(y[i] * stayTime for i in location) <= time, "Constraint_leq"
 
-
+    # 単方向制約
     for i in location:
         for j in location:
-            # if i == j:
-            #     problem += x[i, j] * 2 <= 1, "Constraint_leq_{:}_{:}".format(i, j)
-            # continue
             problem += sum(x[i, j] + x[j, i]) <= 1, "Constraint_leq_{:}_{:}".format(i, j)
 
     # 自身パス除去制約
     for i in location:
         problem += x[i, i] == 0, "Constraint_node_eq{:}".format(i)
 
-    # 
-    # for i in location:
-    #     problem += sum(x[i, j] + x[j, i] for j in location) <= 2, "Constraint_node_{:}".format(i)
+    # 接続制約
     for i in location:
         problem += sum(sum(x[j, i] for j in location) - sum(x[i,k]  for k in location)) >= 0, "Constraint_node_{:}".format(i)
 
@@ -280,8 +275,8 @@ def sendFexMessage(event,place,time,pref):
             layout='baseline',
             spacing='sm',
             contents=[
-                TextComponent( text='Place',color='#aaaaaa',size='sm',flex=1),
-                TextComponent( text=place[i],wrap=True,color='#666666',size='sm',flex=5)
+                TextComponent( text='Place',color='#aaaaaa',size='sm',flex=2),
+                TextComponent( text=place[i],wrap=True,color='#666666',size='sm',flex=3)
             ]
         )
 
@@ -292,12 +287,10 @@ def sendFexMessage(event,place,time,pref):
                 layout='baseline',
                 spacing='sm',
                 contents=[
-                    # TextComponent(text='',color='#aaaaaa',size='sm',flex=1),
                     TextComponent( 
                         text='↓   ' + str(int(time[i]/3600) ) +'h : ' + str(int(time[i]/60)%60 ) +'m ',
                         color='#aaaaaa',size='sm',flex=1
                     ),
-                    # TextComponent(text='',color='#aaaaaa',size='sm',flex=1),
                 ]
             )
             contents.append(box)
