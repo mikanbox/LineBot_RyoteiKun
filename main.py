@@ -311,11 +311,13 @@ def sendFexMessage(event,place,time,pref):
 
     message =[]
     message.append(FlexSendMessage(alt_text="旅程を作成したよ！", contents=bubble))
-    message.append(TextSendMessage(text='これでどうかな？'),
-        quick_reply=QuickReply(items=[
+    message.append(TextSendMessage(text='これでどうかな？',
+                                   quick_reply=QuickReply(items=[
                QuickReplyButton(action=MessageAction(type = "message",label="OK", text="plan_result_ok")),
                QuickReplyButton(action=MessageAction(type = "message",label="もう一回！", text="plan_result_redo"))
            ]))
+
+        )
 
     line_bot_api.reply_message(
         event.reply_token,
