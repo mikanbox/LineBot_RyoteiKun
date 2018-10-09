@@ -496,17 +496,16 @@ def getPref(text):
 
 # 何時から何時まで？
 def getTime(text):
-    m = re.match('.*(\d\d?):(\d\d?).*[-|~|〜|ー|(から)].*(\d\d?):(\d\d?).*', text)
+    m = re.match('.*(?<!\d)(\d\d?):(\d\d?)(?!\d).*[-|~|〜|ー|(から)].*(?<!\d)(\d\d?):(\d\d?)(?!\d).*', text)
     if m:
         starttime =  m.group(1)+":"+m.group(2)
         endtime   =  m.group(3)+":"+m.group(4)
         return starttime,endtime
 
-    m = re.match('.*(\d\d?)時.*[-|~|〜|ー|(から)].*(\d\d?)時.*', text)
+    m = re.match('.*(?<!\d)(\d\d?)時.*[-|~|〜|ー|(から)].*(?<!\d)(\d\d?)時.*', text)
     if m:
         starttime =  m.group(1)+":00"
         endtime   =  m.group(2)+":00"
-
         return starttime,endtime
 
     return False
