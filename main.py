@@ -600,6 +600,9 @@ def handle_message(event):
             dt1 = datetime.datetime.strptime(stateInstance.StartTime, '%H:%M')
             dt2 = datetime.datetime.strptime(stateInstance.EndTime, '%H:%M')
             Journey.MaxTravelTime = (dt2 - dt1).total_seconds()
+
+            print(Journey.MaxTravelTime)
+
             mainRoutine(event,Journey.MaxTravelTime,stateInstance.pref)
             stateInstance.state = 'listen_word'
 
