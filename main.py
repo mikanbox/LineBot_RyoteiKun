@@ -274,7 +274,7 @@ def sendFexMessage(event,place,time,pref):
             spacing='sm',
             contents=[
                 TextComponent( text='Place',color='#aaaaaa',size='sm',flex=2),
-                TextComponent( text=place[i],wrap=True,color='#666666',size='sm',flex=3)
+                TextComponent( text=place[i],wrap=True,color='#666666',size='sm',flex=5)
             ]
         )
 
