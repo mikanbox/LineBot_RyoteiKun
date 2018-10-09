@@ -151,7 +151,7 @@ def calcPath(location, e, c, time, stayTime=3600):
     for i in location:
         problem += sum(x[i, j] for j in location) <= y[i], "Constraint_node_y_{:}".format(i)
     for i in location:
-        problem += sum(x[j, i] for j in location) <= y[i], "Constraint_node_y_{:}".format(i)
+        problem += sum(x[j, i] for j in location) <= y[i], "Constraint_node_y_r_{:}".format(i)
 
 
     # 部分巡回路除去制約
