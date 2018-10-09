@@ -281,7 +281,6 @@ def sendFexMessage(event,place,time,pref):
                 TextComponent( text=place[i],wrap=True,color='#666666',size='sm',flex=8)
             ]
         )
-
         contents.append(boxc)
 
         if (i < len(place) - 1):
