@@ -2,6 +2,7 @@ import requests
 import urllib
 import json
 import APIkey
+import re
 
 
 # 位置座標クラス
@@ -81,9 +82,39 @@ def getPointFromGoogleAPI(PlaceName):
 
 
     if (json_start['status'] == 'ZERO_RESULTS'):
-        return None,None
-
+        return None,None,None
     # print(json.dumps(json_start,ensure_ascii=False, indent=2))
 
     location = json_start["results"][0]["geometry"]["location"]
-    return float(location["lat"]),float(location["lng"])
+    return float(location["lat"]),float(location["lng"]),float(json_start["results"][0]["rating"])
+
+
+
+def getPointInfoFromGoogleAPI(PlaceName):
+    place_url = 'https://maps.googleapis.com/maps/api/place/textsearch/json'
+    query = {'query': PlaceName,
+            'language': 'ja',
+            'key': APIkey.googleAPIkey}
+    s = requests.Session()
+    s.headers.update({'Referer': 'www.monotalk.xyz/example'})
+
+    r = s.get(place_url, params=query)
+    json_start = r.json()
+
+
+    if (json_start['status'] == 'ZERO_RESULTS'):
+        return None,None,None
+    # print(json.dumps(json_start,ensure_ascii=False, indent=2))
+
+    
+    for p in ['都','道','府','県']:
+        pattern = r"、(.*)" + p
+        match = re.search(pattern, json_start["results"][0]["plus_code"]["compound_code"])
+        if match:
+            pref = match.group(1)
+
+    print(pref)
+
+    location = json_start["results"][0]["geometry"]["location"]
+    return float(location["lat"]),float(location["lng"]),float(json_start["results"][0]["rating"]),json_start["results"][0]["name"],pref
+

@@ -87,8 +87,6 @@ class UserState(db.Model):
     endTime = db.Column(db.String()) # 追加
     StayTime = db.Column(db.Integer()) # 追加
 
-
-
 class Journey:
     location = []
     locationValue = {}
@@ -192,8 +190,6 @@ def CreateResult(route, point,location,timeEdge):
     # -------------------------------------------    
     if (pointCount <= 1):  # 旅程が建てられない場合
         return None,None
-
-
     # -------------------------------------------
     # edge初期化,代入(内包) key:value if for
     # -------------------------------------------   
@@ -202,7 +198,6 @@ def CreateResult(route, point,location,timeEdge):
         for j in location:
             if route[i, j].value() == 1:
                 edge[i,j] = edge[j,i] = 1
-
     # -------------------------------------------
     # スタートの特定:[i-j]が端点ならcount=2
     # -------------------------------------------   
@@ -223,7 +218,6 @@ def CreateResult(route, point,location,timeEdge):
     if (startLocation ==0):
         startLocation = location[0]
         LastLocation = startLocation
-
 
     # -------------------------------------------
     # スタートより旅程リストを生成
@@ -340,7 +334,7 @@ def mainRoutine(event=0,time=0,pref='大阪',StayTime =3600):
     spots = db.session.query(Spot).filter(Spot.pref == pref).order_by('score')
     for spot in spots:
         if (spot.lat == None):
-            spot.lat, spot.lng = getPointFromGoogleAPI(spot.name)
+            spot.lat, spot.lng,rating = getPointFromGoogleAPI(spot.name)
             db.session.commit()
 
     # # ----------------------------------------------------------
@@ -387,7 +381,7 @@ def mainRoutine(event=0,time=0,pref='大阪',StayTime =3600):
             # i-jパスがない時
             spotdist = SpotDist()
             spotdist.time = getPathromGoogleAPI([i.lat,i.lng],[j.lat,j.lng])
-            spotdist.id_from,spotdist.id_to = i.id,j.id
+            spotdist.id_from, spotdist.id_to = i.id, j.id
             db.session.add(spotdist)
             db.session.commit()
             timeEdge[i.name,j.name] = timeEdge[j.name,i.name] = spotdist.time
@@ -400,18 +394,14 @@ def mainRoutine(event=0,time=0,pref='大阪',StayTime =3600):
     for i in location:
         for j in location:
             PointValue[i, j] = PointValue[j, i] = locationValue[i] + locationValue[j]
-
-
     # # ----------------------------------------------------------
     # #   最適化問題の計算
     # # ----------------------------------------------------------
     route, point = calcPath(location, timeEdge, PointValue, time , StayTime)
     # # ----------------------------------------------------------
-    # #   返送用メッセージを生成
+    # #   返送用構造体を作成
     # # ----------------------------------------------------------
-    # message = CreateResult(route, point)
     jouneySpot,moveTime = CreateResult(route, point,location,timeEdge)
-
     # # ----------------------------------------------------------
     # #   返送用Line構造体を生成
     # # ----------------------------------------------------------
@@ -422,42 +412,29 @@ def mainRoutine(event=0,time=0,pref='大阪',StayTime =3600):
         sendFexMessage(event,jouneySpot,moveTime,pref = pref)
 
 
-def AddSpot(event=0,text=""):
+def AddSpot(event=0,spotname=""):
     # 名前も受け取る？
-    lat, lng = getPointFromGoogleAPI(spot.name)
-    spotName = ""
+    if (db.session.query(Spot).filter(Spot.name == spotname).count() > 0):
+        message = "指定したスポットはもう登録されています!"
+        return message
+
+    lat, lng,rating,pref = getPointInfoFromGoogleAPI(spotname)
     spotScore =0
     if (lat == None):
-        return False
-
-    if (db.session.query(Spot).filter(Spot.name == s.text).count() > 0):
-        return False
-
+        message = "指定したスポットが見つかりませんでした"
+        return message
     #もしgoogleで検索できたら,,,
-    # DBに追加
-
-    # spots = list()
-    # for (s, sc) in zip(spotName, spotScore):
-    #     spot = Spot()
-    #     spot.name =s
-    #     spot.pref = pref
-    #     spot.score = float(sc.text)
-    #     spots.append(spot)
-    # db.session.add_all(spots)
-    # db.session.commit()
     spot = Spot()
     spot.lat = lat
     spot.lng = lng
-    spot.name = spotName
+    spot.name = spotname
     spot.pref = pref
-    spot.score = float(spotScore)
+    spot.score = rating
     db.session.add(spot)
     db.session.commit()
 
-    line_bot_api.reply_message(event.reply_token,
-        TextSendMessage(text='スポットを登録したよ！'))
-
-    return True
+    message = "スポットを登録したよ！"
+    return message
 
 
 
@@ -504,7 +481,21 @@ def getStop(text):
             return True #テキスト(県名)を返す
     return False
 
+def getHelp(text):
+    for p in ['HELP','ヘルプ','へるぷ','Help','help']:
+        pattern = r".*" + p + r".*"
+        match = re.search(pattern, text)
+        if match:
+            return True #テキスト(県名)を返す
+    return False
 
+def getSpot(text):
+    for p in ['登録','とうろく']:
+        pattern = r".*" + p + r".*"
+        match = re.search(pattern, text)
+        if match:
+            return True #テキスト(県名)を返す
+    return False
 
 
 # -------------------------------------------
@@ -542,8 +533,8 @@ def handle_message(event):
     # -------------------------------------------  
     if (db.session.query(UserState).filter(UserState.user_id == user_id ).count() > 0 ):
         users = db.session.query(UserState).filter(UserState.user_id == user_id)
-        for user in users:
-            stateInstance = user
+        stateInstance = users[0]
+            
     print(stateInstance.state)
 
 
@@ -551,7 +542,7 @@ def handle_message(event):
     # テスト用
     # -------------------------------------------
     if (text in "テスト起動"):
-        mainRoutine(event,22800,"大阪")
+        mainRoutine(event,22800,"大阪",3600)
         return True
 
     # -------------------------------------------
@@ -579,12 +570,31 @@ def handle_message(event):
             dt1 = datetime.datetime.strptime(stateInstance.StartTime, '%H:%M')
             dt2 = datetime.datetime.strptime(stateInstance.EndTime, '%H:%M')
             MaxTravelingSeconds = (dt2 - dt1).total_seconds()
+
             mainRoutine(event,MaxTravelingSeconds,stateInstance.pref,stateInstance.StayTime)
             stateInstance.state = 'listen_word'
 
     if (getStop(text)):
         print("◆GetStop")
         stateInstance.state = 'stop'
+
+    if (getHelp(text)):
+        print("◆GetHelp")
+        line_bot_api.reply_message(event.reply_token,TextSendMessage(text='■旅行のプランを立ててもらいたい時\n1.「旅行」というワードを入れてつぶやく\n2.行きたい県を入力\n3.始まりと終わりの時刻を入力\n4.おすすめのプランを提案してくれるよ \n■自分のお気に入りスポットを登録したい時\n1.「登録」というワードを入れてつぶやく\n2.登録したいスポットの名前を入力\n■使い方がわからないとき...\n1.「Help」「ヘルプ」といったワードをつぶやく',wrap=True))
+        return 
+
+    if (getSpot(text)):
+        print("◆GetSpot")
+        stateInstance.state = 'listen_spot'
+
+    if (stateInstance.state == 'listen_spot_name'):
+        print("◆addSpot")
+        spotname = text
+        message=AddSpot(event,spotname)
+
+
+
+
 
     print(stateInstance.state)
 
@@ -601,6 +611,12 @@ def handle_message(event):
     elif (stateInstance.state == 'stop'):
         stateInstance.state = 'listen_word'
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='計画を中止したよ'))
+    elif (stateInstance.state == 'listen_spot'):
+        stateInstance.state = 'listen_spot_name'
+        line_bot_api.reply_message(event.reply_token,TextSendMessage(text='登録したいスポットの名前を入力してね'))
+    elif (stateInstance.state == 'listen_spot_name'):
+        line_bot_api.reply_message(event.reply_token,TextSendMessage(text=message))
+        stateInstance.state = 'listen_word'
 
 
 
@@ -610,8 +626,7 @@ def handle_message(event):
     if (db.session.query(UserState).filter(UserState.user_id == user_id).count() > 0 ):
         print("updateState")
         users = db.session.query(UserState).filter(UserState.user_id == user_id)
-        for user in users:
-            user = stateInstance
+        users[0] = stateInstance
     else:
         user = UserState()
         user = stateInstance
