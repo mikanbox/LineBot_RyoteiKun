@@ -85,7 +85,7 @@ class UserState(db.Model):
     pref = db.Column(db.String()) # 追加
     startTime = db.Column(db.String()) # 追加
     endTime = db.Column(db.String()) # 追加
-    StayTime = db.Column(db.Integer(3600)) # 追加
+    StayTime = db.Column(db.Integer()) # 追加
 
 
 
@@ -534,6 +534,7 @@ def handle_message(event):
 
     stateInstance = UserState()
     stateInstance.state='listen_word'
+    stateInstance.StayTime = 3600
     print("------------GetTextMessage------------\n\n\n\n")
     print(text)
     # -------------------------------------------
@@ -564,18 +565,12 @@ def handle_message(event):
         else:# 意味のない会話
             IsConversation = True
 
-    print(text)
-
-
     if (stateInstance.state == 'listen_pref_plan'):
         if (getPref(text) != False):
             print("◆getPref")
             stateInstance.pref = getPref(text)
             print(stateInstance.pref)
             stateInstance.state = 'listen_time_plan'
-
-    print(text)
-
 
     if (stateInstance.state == 'listen_time_plan'):
         if (getTime(text) != False):
@@ -586,7 +581,6 @@ def handle_message(event):
             MaxTravelingSeconds = (dt2 - dt1).total_seconds()
             mainRoutine(event,MaxTravelingSeconds,stateInstance.pref,stateInstance.StayTime)
             stateInstance.state = 'listen_word'
-
 
     if (getStop(text)):
         print("◆GetStop")
