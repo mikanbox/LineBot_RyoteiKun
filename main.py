@@ -418,7 +418,7 @@ def AddSpot(event=0,spotname=""):
         message = "指定したスポットはもう登録されています!"
         return message
 
-    lat, lng,rating,pref = getPointInfoFromGoogleAPI(spotname)
+    lat, lng,rating,name,pref = getPointInfoFromGoogleAPI(spotname)
     spotScore =0
     if (lat == None):
         message = "指定したスポットが見つかりませんでした"
@@ -427,7 +427,7 @@ def AddSpot(event=0,spotname=""):
     spot = Spot()
     spot.lat = lat
     spot.lng = lng
-    spot.name = spotname
+    spot.name = name
     spot.pref = pref
     spot.score = rating
     db.session.add(spot)
