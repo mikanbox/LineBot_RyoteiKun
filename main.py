@@ -68,7 +68,6 @@ class Spot(db.Model):
     pref  = db.Column(db.String(), nullable=False) # 追加
     attribute  = db.Column(db.Integer()) # 追加
 
-
 class SpotDist(db.Model):
     __tablename__ = "spotdistance" # 追加
     id    = db.Column(db.Integer, primary_key=True,autoincrement=True) # 追加
@@ -268,7 +267,6 @@ def InitDB():
 def sendFexMessage(event,place,time,pref):
     contents =[]
 
-
     for i in range(len(place)):
         print(place[i])
         boxc = BoxComponent(
@@ -288,8 +286,8 @@ def sendFexMessage(event,place,time,pref):
                 spacing='sm',
                 contents=[
                     TextComponent( 
-                        text='↓   ' + str(int(time[i]/3600) ) +'h : ' + str(int(time[i]/60)%60 ) +'m ',
-                        color='#aaaaaa',size='sm',flex=1
+                        text='↓\n↓   ' + str(int(time[i]/3600) ) +'h : ' + str(int(time[i]/60)%60 ) +'m \n↓',
+                        color='#aaaaaa',size='sm',flex=1,wrap=True
                     ),
                 ]
             )
@@ -415,7 +413,6 @@ def mainRoutine(event=0,time=0,pref='大阪'):
             Journey.PointValue[j, i] = Journey.PointValue[i, j]
 
 
-
     # # ----------------------------------------------------------
     # #   最適化問題の計算
     # # ----------------------------------------------------------
@@ -475,204 +472,6 @@ def AddSpot(event=0,text=""):
     return True
 
 
-
-
-def sampleFlake(event):
-    # bubble = BubbleContainer(
-    #             direction='ltr',
-    #             hero=ImageComponent(
-    #                 url='https://example.com/cafe.jpg',
-    #                 size='full',
-    #                 aspect_ratio='20:13',
-    #                 aspect_mode='cover',
-    #                 action=URIAction(uri='http://example.com', label='label')
-    #             ),
-    #             body=BoxComponent(
-    #                 layout='vertical',
-    #                 contents=[
-    #                     # title
-    #                     TextComponent(text='Brown Cafe', weight='bold', size='xl'),
-    #                     # review
-    #                     BoxComponent(
-    #                         layout='baseline',
-    #                         margin='md',
-    #                         contents=[
-    #                             IconComponent(size='sm', url='https://example.com/gold_star.png'),
-    #                             IconComponent(size='sm', url='https://example.com/grey_star.png'),
-    #                             IconComponent(size='sm', url='https://example.com/gold_star.png'),
-    #                             IconComponent(size='sm', url='https://example.com/gold_star.png'),
-    #                             IconComponent(size='sm', url='https://example.com/grey_star.png'),
-    #                             TextComponent(text='4.0', size='sm', color='#999999', margin='md',
-    #                                           flex=0)
-    #                         ]
-    #                     ),
-    #                     # info
-    #                     BoxComponent(
-    #                         layout='vertical',
-    #                         margin='lg',
-    #                         spacing='sm',
-    #                         contents=[
-    #                             BoxComponent(
-    #                                 layout='baseline',
-    #                                 spacing='sm',
-    #                                 contents=[
-    #                                     TextComponent(
-    #                                         text='Place',
-    #                                         color='#aaaaaa',
-    #                                         size='sm',
-    #                                         flex=1
-    #                                     ),
-    #                                     TextComponent(
-    #                                         text='Shinjuku, Tokyo',
-    #                                         wrap=True,
-    #                                         color='#666666',
-    #                                         size='sm',
-    #                                         flex=5
-    #                                     )
-    #                                 ],
-    #                             ),
-    #                             BoxComponent(
-    #                                 layout='baseline',
-    #                                 spacing='sm',
-    #                                 contents=[
-    #                                     TextComponent(
-    #                                         text='Time',
-    #                                         color='#aaaaaa',
-    #                                         size='sm',
-    #                                         flex=1
-    #                                     ),
-    #                                     TextComponent(
-    #                                         text="10:00 - 23:00",
-    #                                         wrap=True,
-    #                                         color='#666666',
-    #                                         size='sm',
-    #                                         flex=5,
-    #                                     ),
-    #                                 ],
-    #                             ),
-    #                         ],
-    #                     )
-    #                 ],
-    #             ),
-    #             footer=BoxComponent(
-    #                 layout='vertical',
-    #                 spacing='sm',
-    #                 contents=[
-    #                     # callAction, separator, websiteAction
-    #                     SpacerComponent(size='sm'),
-    #                     # callAction
-    #                     ButtonComponent(
-    #                         style='link',
-    #                         height='sm',
-    #                         action=URIAction(label='CALL', uri='tel:000000'),
-    #                     ),
-    #                     # separator
-    #                     SeparatorComponent(),
-    #                     # websiteAction
-    #                     ButtonComponent(
-    #                         style='link',
-    #                         height='sm',
-    #                         action=URIAction(label='WEBSITE', uri="https://example.com")
-    #                     )
-    #                 ]
-    #             ),
-    #         )
-    headerImage = ImageComponent(# 画像ヘッダ
-                    url='https://example.com/cafe.jpg',
-                    size='full',
-                    aspect_ratio='20:13',
-                    aspect_mode='cover',
-                )
-
-    contents =[]
-    boxc = BoxComponent(
-        layout='baseline',
-        spacing='sm',
-        contents=[
-            TextComponent(
-                text='Place',color='#aaaaaa',size='sm',flex=1
-            ),
-            TextComponent(
-                text="place",wrap=True,color='#666666',size='sm',flex=5
-            )
-        ]
-    )
-    contents.append(boxc)
-
-
-
-
-    bubble = BubbleContainer(
-                direction='ltr',
-                hero=headerImage,
-                body=BoxComponent(
-                    layout='vertical',
-                    contents=[
-                        # title
-                        TextComponent(text='Brown Cafe', weight='bold', size='xl'),
-                        # # info
-                        BoxComponent(
-                            layout='vertical',
-                            margin='lg',
-                            spacing='sm',
-                            contents=contents
-                            # [
-                                # BoxComponent(
-                                #     layout='baseline',
-                                #     spacing='sm',
-                                #     contents=[
-                                #         TextComponent(
-                                #             text='Place',
-                                #             color='#aaaaaa',
-                                #             size='sm',
-                                #             flex=1
-                                #         ),
-                                #         TextComponent(
-                                #             text='万博公園',
-                                #             wrap=True,
-                                #             color='#666666',
-                                #             size='sm',
-                                #             flex=5
-                                #         )
-                                #     ],
-                                # ),
-                                # BoxComponent(
-                                #     layout='baseline',
-                                #     spacing='sm',
-                                #     contents=[
-                                #         TextComponent(
-                                #             text='Time',
-                                #             color='#aaaaaa',
-                                #             size='sm',
-                                #             flex=1
-                                #         ),
-                                #         TextComponent(
-                                #             text="10:00 - 23:00",
-                                #             wrap=True,
-                                #             color='#666666',
-                                #             size='sm',
-                                #             flex=5,
-                                #         ),
-                                #     ],
-                                # ),
-                            # ],
-                        )
-
-
-
-                    ],
-                ),
-
-
-
-            )
-
-
-    message = FlexSendMessage(alt_text="hello", contents=bubble)
-    line_bot_api.reply_message(
-        event.reply_token,
-        message
-    )
 
 # -------------------------------------------
 # regexによる言語処理
@@ -763,9 +562,9 @@ def handle_message(event):
     # -------------------------------------------
     # テスト用
     # -------------------------------------------
-    if (text in "フレークサンプル"):
-        sampleFlake(event)
-        return True
+    # if (text in "フレークサンプル"):
+    #     sampleFlake(event)
+    #     return True
     if (text in "テスト起動"):
         mainRoutine(event,22800,"大阪")
         return True
@@ -804,7 +603,6 @@ def handle_message(event):
     if (getStop(text)):
         print("◆GetStop")
         NowState = 'stop'
-
 
     print(NowState)
 
@@ -868,7 +666,7 @@ def helloDB():
 
     return json.dumps(jsonData,ensure_ascii=False, indent=2)
 
-#じゃらんからリストスクレイピングしてくる
+#じゃらんからリストスクレイピングしてくる(未使用)
 # 30秒のタイムアウトがある
 @app.route("/getSpotFromJaran/")
 def GetJaran():
