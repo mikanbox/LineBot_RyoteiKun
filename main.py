@@ -85,7 +85,7 @@ class UserState(db.Model):
     pref = db.Column(db.String()) # 追加
     startTime = db.Column(db.String()) # 追加
     endTime = db.Column(db.String()) # 追加
-    StayTime = db.Column(db.Integer()) # 追加
+    StayTime = db.Column(db.Integer(3600)) # 追加
 
 
 
