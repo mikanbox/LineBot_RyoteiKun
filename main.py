@@ -506,6 +506,9 @@ def getTime(text):
     if m:
         starttime =  m.group(1)+":00"
         endtime   =  m.group(2)+":00"
+
+    print(starttime)
+    print(endtime)
         return starttime,endtime
 
     return False
