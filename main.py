@@ -109,7 +109,7 @@ class Journey:
 # -------------------------------------------
 # pilpを用いて数理最適化を行う
 # -------------------------------------------
-def calcPath(location, e, c, time, stayTime=3600):
+def calcPath(location, e, c, time, stayTime):
     # 最適化問題を解く
     problem = pulp.LpProblem('sample', pulp.LpMaximize)
 
@@ -201,8 +201,7 @@ def CreateResult(route, point,location,timeEdge):
     for i in location:
         for j in location:
             if route[i, j].value() == 1:
-                edge[i,j] = 1
-                edge[j,i] = 1
+                edge[i,j] = edge[j,i] = 1
 
     # -------------------------------------------
     # スタートの特定:[i-j]が端点ならcount=2
@@ -217,12 +216,10 @@ def CreateResult(route, point,location,timeEdge):
     # -------------------------------------------
     # 全部回れちゃう場合に問題起きる →　定式化を改善する必要がるが、応急処置
     # -------------------------------------------  
-    startLocation = 0
-    LastLocation = 0
+    startLocation = LastLocation  = 0
     for i in location:
         if (count[i] == 2):
-            startLocation = i
-            LastLocation = i
+            startLocation = LastLocation = i
     if (startLocation ==0):
         startLocation = location[0]
         LastLocation = startLocation
