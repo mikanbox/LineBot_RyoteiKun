@@ -83,6 +83,11 @@ class UserState(db.Model):
     user_id    = db.Column(db.String()) # 追加
     state      = db.Column(db.String()) # 追加
 
+    pref = db.Column(db.String()) # 追加
+    startTime = db.Column(db.String()) # 追加
+    endTime = db.Column(db.String()) # 追加
+    StayTime = db.Column(db.Integer()) # 追加
+
 class Journey:
     step = 0
     pref = ""
@@ -274,7 +279,7 @@ def sendFexMessage(event,place,time,pref):
             spacing='sm',
             contents=[
                 TextComponent( text='Place',color='#aaaaaa',size='sm',flex=2),
-                TextComponent( text=place[i],wrap=True,color='#666666',size='sm',flex=5)
+                TextComponent( text=place[i],wrap=True,color='#666666',size='sm',flex=7)
             ]
         )
 
