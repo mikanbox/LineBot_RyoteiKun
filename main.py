@@ -253,6 +253,7 @@ def sendFexMessage(event,place,time,pref,StayTime):
             spacing='sm',
             contents=[
                 TextComponent( text='Place',color='#aaaaaa',size='sm',flex=2),
+                IconComponent(url='https://linebot-ryotei-kun.herokuapp.com/static/icon.jpg',size='sm'),
                 TextComponent( text=place[i],wrap=True,color='#444444',size='sm',flex=8)
             ]
         )
@@ -393,7 +394,6 @@ def mainRoutine(event=0,time=0,pref='大阪',StayTime =3600):
                     print("Data is discovered")
                 continue
 
-
                 
             # i-jパスがない時
             spotdist = SpotDist()
@@ -482,7 +482,7 @@ def handle_message(event):
 
     stateInstance = UserState()
     stateInstance.state='listen_word'
-    stateInstance.StayTime = 3600
+    stateInstance.StayTime = 5400
     print("------------GetTextMessage------------\n\n\n\n")
     print(text)
     # -------------------------------------------
