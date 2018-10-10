@@ -244,8 +244,8 @@ def sendFexMessage(event,place,time,pref,StayTime):
         ]
     )
     contents.append(boxc)
-    sumTravelTime = 0
 
+    sumTravelTime = StayTime
     for i in range(len(place)):
         print(place[i])
         boxc = BoxComponent(
@@ -275,7 +275,6 @@ def sendFexMessage(event,place,time,pref,StayTime):
             sumTravelTime += StayTime
 
 
-
     boxc = BoxComponent(
         layout='baseline',
         spacing='sm',
@@ -284,6 +283,7 @@ def sendFexMessage(event,place,time,pref,StayTime):
         ]
     )
     contents.append(boxc)
+
 
 
     headerImage = ImageComponent(# 画像ヘッダ
