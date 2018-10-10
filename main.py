@@ -565,7 +565,7 @@ def handle_message(event):
     # -------------------------------------------
     if (stateInstance.state == 'listen_word' or stateInstance.state == 'listen_reply'):
         if IsConversation:# 雑談フラグ作って、それが1なら返す
-            line_bot_api.reply_message(event.reply_token,TextSendMessage(text='なにがしたい〜？旅行って言ってくれたら計画立てるよ'))
+            line_bot_api.reply_message(event.reply_token,TextSendMessage(text='なにがしたい〜？旅行って言ってくれたら計画立てるよ.ヘルプって言ってくれたら使い方を表示するよ'))
     elif (stateInstance.state =='listen_pref_plan'):
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='どの県にいきたい？'))
     elif (stateInstance.state =='listen_time_plan'):
