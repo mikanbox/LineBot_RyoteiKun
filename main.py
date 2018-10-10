@@ -236,6 +236,15 @@ def InitDB():
 
 def sendFexMessage(event,place,time,pref):
     contents =[]
+    boxc = BoxComponent(
+        layout='baseline',
+        spacing='sm',
+        contents=[
+            TextComponent( text='Start:'+'0h : 0m ',color='#aaaaaa',size='sm')
+        ]
+    )
+    contents.append(boxc)
+    sumTravelTime = 0
 
     for i in range(len(place)):
         print(place[i])
@@ -256,14 +265,24 @@ def sendFexMessage(event,place,time,pref):
                 contents=[
                     TextComponent( 
                         # text='↓\n↓   ' + str(int(time[i]/3600) ) +'h : ' + str(int(time[i]/60)%60 ) +'m \n↓',
-                        text='↓ move  ' + str(int(time[i]/3600) ) +'h : ' + str(int(time[i]/60)%60 ) +'m ',
+                        text='↓ move  ' + str(int(sumTravelTime[i]/3600) ) +'h : ' + str(int(sumTravelTime[i]/60)%60 ) + 'm  ~ '+ \
+                        str(int((sumTravelTime[i]+time[i])/3600) ) +'h : ' + str(int((sumTravelTime[i]+time[i])/60)%60 ) +'m',
                         color='#aaaaaa',size='sm',flex=1,wrap=True
                     ),
                 ]
             )
             contents.append(box)
+        sumTravelTime += time[i]
 
 
+    boxc = BoxComponent(
+        layout='baseline',
+        spacing='sm',
+        contents=[
+            TextComponent( text='End  :'+ str(int(sumTravelTime[i]/3600) ) +'h : ' + str(int(sumTravelTime[i]/60)%60 ) + 'm ',color='#aaaaaa',size='sm')
+        ]
+    )
+    contents.append(boxc)
 
 
     headerImage = ImageComponent(# 画像ヘッダ
