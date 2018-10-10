@@ -1,12 +1,15 @@
 # 旅のおとも
-===============
+===============  
 行き先と時間を伝えると簡単に旅程を提案してくれるLINE BOT
 
 ## Description
-旅のおともLINEで友達に追加した状態で行き先の県と滞在時間を伝えると対象の県からいくつか名所をピックアップし,滞在時間内でいい感じに周遊可能なプランを提示してくれるLINE BOTです.このBOTはLINE BOOTAWARDS向けに製作しました.
+旅のおともはLINE Messaging APIを利用したLINE BOTです.トークルームで行き先の県と滞在時間を伝えると対象の県からいくつか名所をピックアップし,滞在時間内でいい感じに周遊可能なプランを提示してくれます.現在はいくつかの候補からBotが自分で判断してプランを提案してくれますが,今後はユーザーが投稿した旅行プランも提案し,最終的には旅行プランに関する総合プラットフォームを目指しています.このBOTはLINE BOOTAWARDSに応募予定です.
 
-## Functions
-- 
+## Main Functions
+- 目的地と所要時間から旅行のプランを提案してくれる機能
+- 自分のおすすめのスポットをBotに覚えさせる機能
+- 列挙したスポットから最適な巡回の順番を提案してくれる機能(実装予定)
+- 自分のおすすめの旅行プランをBotに覚えさせる機能(実装予定)
 
 ## Demo
 YouTubeリンク or QRコード, URLを掲載予定です
@@ -27,8 +30,7 @@ YouTubeリンク or QRコード, URLを掲載予定です
   - beautifulsoup4
   - psycopg2
 - [SDK of the LINE Messagin API for Python](https://github.com/line/line-bot-sdk-python)
-- Google Maps API
-- Google Directions API
+- [Google Maps Platform](https://cloud.google.com/maps-platform/?hl=ja)
 
 
 ## Build & Setup
@@ -44,10 +46,9 @@ $ main.py 5000
 - 移動手段に徒歩を追加
 - スポットの羅列で提案
 - `旅行プランの登録`と登録したプランを提案
-  - 大阪旅行 by tomotan みたいな
-  - 大阪旅行 by random みたいな
+  - 「大阪旅行 by tomotan」 みたいなタイトルで
 - ユーザーによる滞在時間の設定
-- スポットと旅行プランの評価☆(1日一回とか)
+- スポットと旅行プランの☆評価(1日一回とか)
 - 現在地から対象の県までの計算
 - リッチメニューの実装
   - おまかせ旅程
