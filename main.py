@@ -353,7 +353,7 @@ def mainRoutine(event=0,time=0,pref='大阪',StayTime =3600):
             location.append(spot.name)
             locationValue[spot.name] = spot.score
 
-    location = random.sample(location,5)
+    location = random.sample(location,7)
 
     # # ----------------------------------------------------------
     # #   i-jパスの設定
@@ -577,9 +577,7 @@ def handle_message(event):
             dt1 = datetime.datetime.strptime(stateInstance.startTime, '%H:%M')
             dt2 = datetime.datetime.strptime(stateInstance.endTime, '%H:%M')
             MaxTravelingSeconds = (dt2 - dt1).total_seconds()
-
             print(str(MaxTravelingSeconds)+" sec")
-
             mainRoutine(event,MaxTravelingSeconds,stateInstance.pref,stateInstance.StayTime)
             stateInstance.state = 'listen_reply'
 
@@ -587,14 +585,13 @@ def handle_message(event):
     if (stateInstance.state == 'listen_reply'):
         if (text == 'OK'):
             stateInstance.state = 'listen_word'
-
         if (text == 'もう一回！'):
             dt1 = datetime.datetime.strptime(stateInstance.startTime, '%H:%M')
             dt2 = datetime.datetime.strptime(stateInstance.endTime, '%H:%M')
             MaxTravelingSeconds = (dt2 - dt1).total_seconds()
-
             mainRoutine(event,MaxTravelingSeconds,stateInstance.pref,stateInstance.StayTime)
             stateInstance.state = 'listen_reply'
+
 
 
 
@@ -615,8 +612,6 @@ def handle_message(event):
         print("◆addSpot")
         spotname = text
         message=AddSpot(event,spotname)
-
-
 
 
 
