@@ -12,13 +12,13 @@
 - 自分のおすすめの旅行プランをBotに覚えさせる機能(実装予定)
 
 ## Demo
-![screenshot](./docs/screenshot.png "screenshot")
+<img src="./docs/screenshot.png" width="300px">
+
 
 YouTubeリンク or QRコード, URLを掲載予定です
 
 ## QR Code
-<!-- ![QR Code](./docs/qrcode.png "QR Code") -->
-<img src="./docs/qrcode.png" width="100px">
+![QR Code](./docs/qrcode.png "QR Code")
 
 ## Requirement
 - Python 3.6
