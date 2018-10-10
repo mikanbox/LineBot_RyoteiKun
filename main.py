@@ -272,8 +272,7 @@ def sendFexMessage(event,place,time,pref,StayTime):
             )
             contents.append(box)
             sumTravelTime += int(time[i])
-
-        sumTravelTime += StayTime
+            sumTravelTime += StayTime
 
 
 
@@ -503,7 +502,8 @@ def handle_message(event):
             print("◆getJourney")
             stateInstance.state = 'listen_pref_plan'
         else:# 意味のない会話
-            IsConversation = True
+            if (text != 'OK'):
+                IsConversation = True
 
     if (stateInstance.state == 'listen_pref_plan'):
         if (getPref(text) != False):
