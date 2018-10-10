@@ -86,23 +86,6 @@ class UserState(db.Model):
     endTime = db.Column(db.String()) # 追加
     StayTime = db.Column(db.Integer()) # 追加
 
-class Journey:
-    location = []
-    locationValue = {}
-    timeEdge = {}
-    PointValue = {} # 実際はエッジの利益
-    pref = ""
-    MaxTravelTime = 60 * 60 * 1
-    StayTime = 3600
-    StartTime = ""
-    EndTime = ""
-    NowState = 'listen_word'
-
-
-# #状態の定義
-# states=['listen_word', 'listen_pref_plan', 'listen_time_plan','exec_plan', 'listen_spot_register','exec_register']
-
-
 # -------------------------------------------
 # pilpを用いて数理最適化を行う
 # -------------------------------------------
@@ -444,9 +427,6 @@ def AddSpot(event=0,spotname=""):
 
 
 
-
-
-
 # -------------------------------------------
 # Line messaging API
 # -------------------------------------------
@@ -498,7 +478,7 @@ def handle_message(event):
     # 状態とテキストに応じて処理を記述
     # -------------------------------------------
     IsConversation = False
-    if (stateInstance.state == 'listen_word'):
+    if (stateInstance.state == 'listen_word' or stateInstance.state == 'listen_reply'):
         if (getJourney(text)):
             print("◆getJourney")
             stateInstance.state = 'listen_pref_plan'
@@ -563,13 +543,13 @@ def handle_message(event):
     # -------------------------------------------
     # 状態に応じて返信メッセージを記述
     # -------------------------------------------
-    if (stateInstance.state == 'listen_word'):
+    if (stateInstance.state == 'listen_word' or stateInstance.state == 'listen_reply'):
         if IsConversation:# 雑談フラグ作って、それが1なら返す
             line_bot_api.reply_message(event.reply_token,TextSendMessage(text='なにがしたい〜？旅行って言ってくれたら計画立てるよ'))
     elif (stateInstance.state =='listen_pref_plan'):
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='どの県にいきたい？'))
     elif (stateInstance.state =='listen_time_plan'):
-        line_bot_api.reply_message(event.reply_token,TextSendMessage(text='何時から何時まで？\n 「hh:mmm-hh:mm」の形や「〇〇時から〇〇時まで」の形で入力してね'))
+        line_bot_api.reply_message(event.reply_token,TextSendMessage(text='どのくらい旅行する？\n 「hh:mmm」の形や「〇〇時間〇〇分」の形で入力してね'))
     elif (stateInstance.state == 'stop'):
         stateInstance.state = 'listen_word'
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='計画を中止したよ'))
