@@ -140,8 +140,8 @@ def calcPath(location, e, c, time, stayTime):
     # -------------------------------------------  
 
     status = problem.solve()
-    # print("Status", pulp.LpStatus[status])
-    # print(problem)
+    print("Status", pulp.LpStatus[status])
+    print(problem)
 
 
     return x, y
@@ -366,7 +366,7 @@ def mainRoutine(event=0,time=0,pref='大阪',StayTime =3600):
             location.append(spot.name)
             locationValue[spot.name] = spot.score
 
-    location = random.sample(location,7)
+    location = random.sample(location,3)
 
     # # ----------------------------------------------------------
     # #   i-jパスの設定
