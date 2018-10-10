@@ -38,13 +38,25 @@ YouTubeリンク or QRコード, URLを掲載予定です
 
 ## Build & Setup
 ```
-## register Google API
-
 ## create App and DB on heroku
-
+## register LINE Developper account
+## register Google Cloud Platform account
 ## heroku deploy
 
-## register LINE Developper
+#login
+heroku login
+
+# deploy
+git push heroku master
+
+# set environment (can set environment by gui)
+heroku config:set channel_secret=xxxx
+heroku config:set channel_access_token=xxxx
+heroku config:set DATABASE_URL=xxxx
+heroku config:set googleAPIkey=xxxx
+
+
+
 
 
 ```

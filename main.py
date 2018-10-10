@@ -31,7 +31,7 @@ from linebot.models import (
     UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent,
     FlexSendMessage, BubbleContainer, ImageComponent, BoxComponent,
     TextComponent, SpacerComponent, IconComponent, ButtonComponent,
-    SeparatorComponent, QuickReply, QuickReplyButton,DatetimePickerTemplateAction
+    SeparatorComponent, QuickReply, QuickReplyButton,DatetimePickerTemplateAction,BlockStyle,BubbleStyle
 )
 
 from CallgoogleAPI import *
@@ -309,8 +309,16 @@ def sendFexMessage(event,place,time,pref,StayTime):
                             layout='vertical',margin='lg',spacing='sm',contents=contents
                         )
                     ]
+                ),
+                styles = BubbleStyle(
+                    header = BlockStyle(separator = True,backgroundColor='#ddffff'),
+                    hero = BlockStyle(separator = True,backgroundColor='#ddffff'),
+                    body = BlockStyle(separator = True,backgroundColor='#ddffff'),
+                    footer = BlockStyle(separator = True,backgroundColor='#ddffff')
                 )
             )
+
+
 
     message =[]
     message.append(FlexSendMessage(alt_text="旅程を作成したよ！", contents=bubble))
