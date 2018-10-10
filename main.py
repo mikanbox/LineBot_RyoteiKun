@@ -234,7 +234,7 @@ def InitDB():
     UserState.metadata.create_all(bind = ENGINE)
 
 
-def sendFexMessage(event,place,time,pref):
+def sendFexMessage(event,place,time,pref,StayTime):
     contents =[]
     boxc = BoxComponent(
         layout='baseline',
@@ -273,6 +273,7 @@ def sendFexMessage(event,place,time,pref):
             )
             contents.append(box)
             sumTravelTime += int(time[i])
+        sumTravelTime += StayTime
 
 
     boxc = BoxComponent(
@@ -318,7 +319,6 @@ def sendFexMessage(event,place,time,pref):
                QuickReplyButton(action=MessageAction(type = "message",label="OK", text="OK")),
                QuickReplyButton(action=MessageAction(type = "message",label="もう一回！", text="もう一回！"))
            ]))
-
         )
 
     line_bot_api.reply_message(
@@ -417,7 +417,7 @@ def mainRoutine(event=0,time=0,pref='大阪',StayTime =3600):
     if (jouneySpot == None):
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='可能なプランがありません！'))
     else:
-        sendFexMessage(event,jouneySpot,moveTime,pref = pref)
+        sendFexMessage(event,jouneySpot,moveTime,pref = pref,StayTime)
 
 
 def AddSpot(event=0,spotname=""):
