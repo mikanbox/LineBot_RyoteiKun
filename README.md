@@ -15,9 +15,6 @@
 <img src="./docs/IMG_0982.PNG" width="300px"><img src="./docs/IMG_0983.PNG" width="300px"><img src="./docs/IMG_0984.PNG" width="300px"><img src="./docs/IMG_0985.PNG" width="300px">
 <!-- <img src="./docs/screenshot.png" width="300px"> -->
 
-
-YouTubeリンク or QRコード, URLを掲載予定です
-
 ## QR Code
 ![QR Code](./docs/qrcode.png "QR Code")
 
@@ -56,9 +53,8 @@ heroku config:set channel_access_token=xxxx
 heroku config:set DATABASE_URL=xxxx
 heroku config:set googleAPIkey=xxxx
 
-
-
-
+# display logs
+heroku logs --tail
 
 ```
 
