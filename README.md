@@ -12,6 +12,8 @@
 - 自分のおすすめの旅行プランをBotに覚えさせる機能(実装予定)
 
 ## Demo
+![screenshot](./docs/screenshot.png "screenshot")
+
 YouTubeリンク or QRコード, URLを掲載予定です
 
 ## QR Code
@@ -34,11 +36,16 @@ YouTubeリンク or QRコード, URLを掲載予定です
 
 
 ## Build & Setup
-テストはngrokを用いた.
-本番稼働はHerokuを用いると良い？
 ```
-$ ngrok 5000
-$ main.py 5000
+## register Google API
+
+## create App and DB on heroku
+
+## heroku deploy
+
+## register LINE Developper
+
+
 ```
 
 ## Future work
