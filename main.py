@@ -92,53 +92,42 @@ class UserState(db.Model):
 def calcPath(location, e, c, time, stayTime):
     # 最適化問題を解く
     problem = pulp.LpProblem('sample', pulp.LpMaximize)
-
     # -------------------------------------------
     # 決定変数定義
     # -------------------------------------------   
     x = { (i, j) :pulp.LpVariable("x({:},{:})".format(i, j), 0, 1, pulp.LpInteger) for i in location for j in location}
     y = { i : pulp.LpVariable("y({:})".format(i), 0, 1, pulp.LpInteger) for i in location}
-
     # -------------------------------------------
     # 目的関数設定
     # -------------------------------------------   
     problem += pulp.lpSum(c[i, j] * x[i, j] for i in location for j in location), "TotalCost"
-
     # -------------------------------------------
     # 制約式
     # -------------------------------------------   
     # 全体時間制約
     problem += sum(x[i, j] * e[i,j] for i in location for j in location) + \
         sum(y[i] * stayTime for i in location) <= time, "Constraint_leq"
-
     # 単方向制約
     for i in location:
         for j in location:
             problem += sum(x[i, j] + x[j, i]) <= 1, "Constraint_leq_{:}_{:}".format(i, j)
-
     # 自身パス除去制約
     for i in location:
         problem += x[i, i] == 0, "Constraint_node_eq{:}".format(i)
-
     # 接続制約
     for i in location:
         problem += sum(sum(x[j, i] for j in location) - sum(x[i,k]  for k in location)) >= 0, "Constraint_node_{:}".format(i)
-
-
     # y起動制約
     for i in location:
         problem += sum(x[i, j] for j in location) <= y[i], "Constraint_node_y_{:}".format(i)
     for i in location:
         problem += sum(x[j, i] for j in location) <= y[i], "Constraint_node_y_r_{:}".format(i)
-
-
     # 部分巡回路除去制約
     problem += sum(y[i] for i in location) - sum(x[i, j] for i in location for j in location) == 1, "Constraint_eq2"
 
     # -------------------------------------------
     # pulpを用いた求解
     # -------------------------------------------  
-
     status = problem.solve()
     print("Status", pulp.LpStatus[status])
     print(problem)
@@ -373,7 +362,7 @@ def mainRoutine(event=0,time=0,pref='大阪',StayTime =3600):
             location.append(spot.name)
             locationValue[spot.name] = spot.score
 
-    location = random.sample(location,2)
+    location = random.sample(location,7)
 
     # # ----------------------------------------------------------
     # #   i-jパスの設定
