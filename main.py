@@ -287,7 +287,7 @@ def sendFexMessage(event,place,time,pref,StayTime):
 
 
     headerImage = ImageComponent(# 画像ヘッダ
-                    url='https://example.com/cafe.jpg',
+                    url='./background.jpg',
                     size='full',
                     aspect_ratio='20:13',
                     aspect_mode='cover',
@@ -311,10 +311,10 @@ def sendFexMessage(event,place,time,pref,StayTime):
                     ]
                 ),
                 styles = BubbleStyle(
-                    header = BlockStyle(backgroundColor='#bbffff'),
-                    hero = BlockStyle( backgroundColor='#444444'),
-                    body = BlockStyle( backgroundColor='#444444'),
-                    footer = BlockStyle( backgroundColor='#bbffff')
+                    header = BlockStyle(separator = True, backgroundColor='#bbffff'),
+                    hero = BlockStyle(separator = True, backgroundColor='#bbffff'),
+                    body = BlockStyle(separator = True, backgroundColor='#bbffff'),
+                    footer = BlockStyle(separator = True, backgroundColor='#bbffff')
                 )
             )
 
