@@ -108,7 +108,7 @@ def calcPath(location, e, c, time, stayTime):
     # 制約式
     # -------------------------------------------   
     # 全体時間制約
-    problem += sum(x[i, j] for i in location for j in location) + \
+    problem += sum(x[i, j] * e[i,j] for i in location for j in location) + \
         sum(y[i] * stayTime for i in location) <= time, "Constraint_leq"
 
     # 単方向制約
@@ -530,7 +530,9 @@ def handle_message(event):
             dt1 = datetime.datetime.strptime(stateInstance.startTime, '%H:%M')
             dt2 = datetime.datetime.strptime(stateInstance.endTime, '%H:%M')
             MaxTravelingSeconds = (dt2 - dt1).total_seconds()
+
             print(str(MaxTravelingSeconds)+" sec")
+
             mainRoutine(event,MaxTravelingSeconds,stateInstance.pref,stateInstance.StayTime)
             stateInstance.state = 'listen_reply'
 
