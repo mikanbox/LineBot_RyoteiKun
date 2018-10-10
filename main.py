@@ -143,6 +143,13 @@ def calcPath(location, e, c, time, stayTime):
     print("Status", pulp.LpStatus[status])
     print(problem)
 
+    for i in Journey.location:
+        for j in Journey.location:
+            print (x[i,j], x[i,j].value())
+
+    for i in Journey.location:
+        print (y[i], y[i].value())
+
 
     return x, y
 
