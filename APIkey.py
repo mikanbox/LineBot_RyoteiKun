@@ -1,6 +1,6 @@
 import os
 global googleAPIkey
-googleAPIkey = os.environ["googleAPIkey"]
+# googleAPIkey = os.environ["googleAPIkey"]
 global channel_secret
 channel_secret = os.environ["channel_secret"]
 global channel_access_token
