@@ -272,7 +272,7 @@ def sendFexMessage(event,place,time,pref):
                 ]
             )
             contents.append(box)
-        sumTravelTime += time[i]
+            sumTravelTime += time[i]
 
 
     boxc = BoxComponent(
@@ -568,7 +568,7 @@ def handle_message(event):
     elif (stateInstance.state =='listen_pref_plan'):
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='どの県にいきたい？'))
     elif (stateInstance.state =='listen_time_plan'):
-        line_bot_api.reply_message(event.reply_token,TextSendMessage(text='どのくらい旅行する？\n 「hh:mmm」の形や「〇〇時間〇〇分」の形で入力してね'))
+        line_bot_api.reply_message(event.reply_token,TextSendMessage(text='どのくらい旅行する？\n 「hh:mm」の形や「〇〇時間！」,「〇〇時間〇〇分」の形で入力してね'))
     elif (stateInstance.state == 'stop'):
         stateInstance.state = 'listen_word'
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='計画を中止したよ'))
