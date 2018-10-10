@@ -287,7 +287,7 @@ def sendFexMessage(event,place,time,pref,StayTime):
 
 
     headerImage = ImageComponent(# 画像ヘッダ
-                    url='/static/background.jpg',
+                    url='https://linebot-ryotei-kun.herokuapp.com/static/background.jpg',
                     size='full',
                     aspect_ratio='20:13',
                     aspect_mode='cover',
