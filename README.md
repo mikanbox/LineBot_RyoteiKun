@@ -12,7 +12,8 @@
 - 自分のおすすめの旅行プランをBotに覚えさせる機能(実装予定)
 
 ## Demo
-<img src="./docs/screenshot.png" width="300px">
+<img src="./docs/IMG_0982.PNG" width="300px"><img src="./docs/IMG_0983.PNG" width="300px"><img src="./docs/IMG_0984.PNG" width="300px"><img src="./docs/IMG_0985.PNG" width="300px">
+<!-- <img src="./docs/screenshot.png" width="300px"> -->
 
 
 YouTubeリンク or QRコード, URLを掲載予定です
