@@ -240,7 +240,7 @@ def sendFexMessage(event,place,time,pref,StayTime):
         layout='baseline',
         spacing='sm',
         contents=[
-            TextComponent( text='Start:'+'0h : 0m ',color='#aaaaaa',size='sm')
+            TextComponent( text='Start  :'+'0h : 0m ',color='#aaaaaa',size='sm')
         ]
     )
     contents.append(boxc)
@@ -257,7 +257,6 @@ def sendFexMessage(event,place,time,pref,StayTime):
             ]
         )
         contents.append(boxc)
-
         if (i < len(place) - 1):
             box = BoxComponent(
                 layout='baseline',
@@ -273,14 +272,16 @@ def sendFexMessage(event,place,time,pref,StayTime):
             )
             contents.append(box)
             sumTravelTime += int(time[i])
+
         sumTravelTime += StayTime
+
 
 
     boxc = BoxComponent(
         layout='baseline',
         spacing='sm',
         contents=[
-            TextComponent( text='End  :'+ str(int(sumTravelTime/3600) ) +'h : ' + str(int(sumTravelTime/60)%60 ) + 'm ',color='#aaaaaa',size='sm')
+            TextComponent( text='End    :'+ str(int(sumTravelTime/3600) ) +'h : ' + str(int(sumTravelTime/60)%60 ) + 'm ',color='#aaaaaa',size='sm')
         ]
     )
     contents.append(boxc)
@@ -417,7 +418,7 @@ def mainRoutine(event=0,time=0,pref='大阪',StayTime =3600):
     if (jouneySpot == None):
         line_bot_api.reply_message(event.reply_token,TextSendMessage(text='可能なプランがありません！'))
     else:
-        sendFexMessage(event,jouneySpot,moveTime,pref = pref,StayTime)
+        sendFexMessage(event,jouneySpot,moveTime,pref = pref,StayTime = StayTime)
 
 
 def AddSpot(event=0,spotname=""):
