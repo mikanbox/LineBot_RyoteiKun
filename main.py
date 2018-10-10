@@ -342,6 +342,7 @@ def sendFexMessage(event,place,time,pref,StayTime):
 # メインルーチン
 # -------------------------------------------
 def mainRoutine(event=0,time=0,pref='大阪',StayTime =3600):
+    print("staytime:"StayTime)
     # ----------------------------------------------------------
     #   DB初期化
     # ----------------------------------------------------------
