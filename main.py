@@ -34,10 +34,9 @@ from linebot.models import (
     SeparatorComponent, QuickReply, QuickReplyButton,DatetimePickerTemplateAction
 )
 
-
-
 from CallgoogleAPI import *
 import APIkey
+import regexfunc
 
 app = Flask(__name__)
 line_bot_api = LineBotApi(APIkey.channel_access_token)
@@ -262,7 +261,7 @@ def sendFexMessage(event,place,time,pref):
             spacing='sm',
             contents=[
                 TextComponent( text='Place',color='#aaaaaa',size='sm',flex=2),
-                TextComponent( text=place[i],wrap=True,color='#666666',size='sm',flex=8)
+                TextComponent( text=place[i],wrap=True,color='#444444',size='sm',flex=8)
             ]
         )
         contents.append(boxc)
@@ -273,7 +272,8 @@ def sendFexMessage(event,place,time,pref):
                 spacing='sm',
                 contents=[
                     TextComponent( 
-                        text='↓\n↓   ' + str(int(time[i]/3600) ) +'h : ' + str(int(time[i]/60)%60 ) +'m \n↓',
+                        # text='↓\n↓   ' + str(int(time[i]/3600) ) +'h : ' + str(int(time[i]/60)%60 ) +'m \n↓',
+                        text='↓ move  ' + str(int(time[i]/3600) ) +'h : ' + str(int(time[i]/60)%60 ) +'m ',
                         color='#aaaaaa',size='sm',flex=1,wrap=True
                     ),
                 ]
@@ -444,64 +444,7 @@ def AddSpot(event=0,spotname=""):
 
 
 
-# -------------------------------------------
-# regexによる言語処理
-# -------------------------------------------
-def getJourney(text):
-    pattern = r".*旅行.*"
-    match = re.search(pattern, text)
-    if not match:
-        return False
-    return True
 
-def getPref(text):
-    for p in Pref_List:
-        # rをつけるとエスケープシーケンスが無向に
-        pattern = r".*(" + p + r").*"
-        match = re.search(pattern, text)
-        if match:
-            return match.group(1) #テキスト(県名)を返す
-    return False
-
-# 何時から何時まで？
-def getTime(text):
-    m = re.match('.*(?<!\d)(\d\d?):(\d\d?)(?!\d).*[-|~|〜|ー|(から)].*(?<!\d)(\d\d?):(\d\d?)(?!\d).*', text)
-    if m:
-        starttime =  m.group(1).zfill(2)+":"+m.group(2).zfill(2)
-        endtime   =  m.group(3).zfill(2)+":"+m.group(4).zfill(2)
-        return starttime,endtime
-
-    m = re.match('.*(?<!\d)(\d\d?)時.*[-|~|〜|ー|(から)].*(?<!\d)(\d\d?)時.*', text)
-    if m:
-        starttime =  m.group(1).zfill(2)+":00"
-        endtime   =  m.group(2).zfill(2)+":00"
-        return starttime,endtime
-
-    return False
-
-def getStop(text):
-    for p in ['やめる','やめた','終了','止める','止めた']:
-        pattern = r".*" + p + r".*"
-        match = re.search(pattern, text)
-        if match:
-            return True #テキスト(県名)を返す
-    return False
-
-def getHelp(text):
-    for p in ['HELP','ヘルプ','へるぷ','Help','help']:
-        pattern = r".*" + p + r".*"
-        match = re.search(pattern, text)
-        if match:
-            return True #テキスト(県名)を返す
-    return False
-
-def getSpot(text):
-    for p in ['登録','とうろく']:
-        pattern = r".*" + p + r".*"
-        match = re.search(pattern, text)
-        if match:
-            return True #テキスト(県名)を返す
-    return False
 
 
 # -------------------------------------------
@@ -574,7 +517,8 @@ def handle_message(event):
     if (stateInstance.state == 'listen_time_plan'):
         if (getTime(text) != False):
             print("◆getTime")
-            stateInstance.startTime,stateInstance.endTime = getTime(text)
+            stateInstance.startTime,stateInstance.endTime = getSumTime(text)
+            # stateInstance.startTime,stateInstance.endTime = getTime(text)
             dt1 = datetime.datetime.strptime(stateInstance.startTime, '%H:%M')
             dt2 = datetime.datetime.strptime(stateInstance.endTime, '%H:%M')
             MaxTravelingSeconds = (dt2 - dt1).total_seconds()
@@ -602,7 +546,7 @@ def handle_message(event):
 
     if (getHelp(text)):
         print("◆GetHelp")
-        line_bot_api.reply_message(event.reply_token,TextSendMessage(text='ヘルプだよ!\n\n■旅行のプランを立ててもらいたい時\n1.「旅行」というワードを入れてつぶやく\n2.行きたい県を入力\n3.始まりと終わりの時刻を入力\n4.おすすめのプランを提案してくれるよ \n■自分のお気に入りスポットを登録したい時\n1.「登録」というワードを入れてつぶやく\n2.登録したいスポットの名前を入力\n■使い方がわからないとき...\n1.「Help」「ヘルプ」といったワードをつぶやく',wrap=True))
+        line_bot_api.reply_message(event.reply_token,TextSendMessage(text='ヘルプだよ!\n\n■旅行のプランを立ててもらいたい時\n1.「旅行」というワードを入れて話しかける\n2.行きたい県を入力\n3.始まりと終わりの時刻を入力\n4.おすすめのプランを提案してくれるよ \n■自分のお気に入りスポットを登録したい時\n1.「登録」というワードを入れて話しかける\n2.登録したいスポットの名前を入力\n■使い方がわからないとき...\n1.「Help」「ヘルプ」といったワードを入れて話しかける',wrap=True))
         return 
 
     if (getSpot(text)):
