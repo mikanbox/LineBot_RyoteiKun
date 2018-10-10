@@ -17,7 +17,8 @@
 YouTubeリンク or QRコード, URLを掲載予定です
 
 ## QR Code
-![QR Code](./docs/qrcode.png "QR Code")
+<!-- ![QR Code](./docs/qrcode.png "QR Code") -->
+<img src="./docs/qrcode.png" width=50%>
 
 ## Requirement
 - Python 3.6
