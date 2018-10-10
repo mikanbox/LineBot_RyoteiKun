@@ -36,7 +36,7 @@ from linebot.models import (
 
 from CallgoogleAPI import *
 import APIkey
-import regexfunc
+from regexfunc import *
 
 app = Flask(__name__)
 line_bot_api = LineBotApi(APIkey.channel_access_token)
