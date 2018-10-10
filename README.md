@@ -2,6 +2,9 @@
 ===============  
 行き先と時間を伝えると簡単に旅程を提案してくれるLINE BOT
 
+## QR Code
+![QR Code](./docs/qrcode.png "QR Code")
+
 ## Description
 旅のおともはLINE Messaging APIを利用したLINE BOTです.トークルームで行き先の県と滞在時間を伝えると対象の県からいくつか名所をピックアップし,滞在時間内でいい感じに周遊可能なプランを提示してくれます.現在はいくつかの候補からBotが自分で判断してプランを提案してくれますが,今後はユーザーが投稿した旅行プランも提案し,最終的には旅行プランに関する総合プラットフォームを目指しています.このBOTはLINE BOOTAWARDSに応募予定です.
 
@@ -14,9 +17,6 @@
 ## Demo
 <img src="./docs/IMG_0982.PNG" width="300px"><img src="./docs/IMG_0983.PNG" width="300px"><img src="./docs/IMG_0984.PNG" width="300px"><img src="./docs/IMG_0985.PNG" width="300px">
 <!-- <img src="./docs/screenshot.png" width="300px"> -->
-
-## QR Code
-![QR Code](./docs/qrcode.png "QR Code")
 
 ## Requirement
 - Python 3.6
