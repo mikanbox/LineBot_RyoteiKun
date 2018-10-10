@@ -287,11 +287,15 @@ def sendFexMessage(event,place,time,pref,StayTime):
 
 
     headerImage = ImageComponent(# 画像ヘッダ
-                    url='https://example.com/cafe.jpg',
+                    url="http://" + os.path.join(app.root_path, 'background.jpg'),
                     size='full',
                     aspect_ratio='20:13',
                     aspect_mode='cover',
                 )
+
+    
+    print("http://" + os.path.join(app.root_path, 'background.jpg'))
+
     #--------------------------------------------------
     # コンテナ作成
     #--------------------------------------------------
