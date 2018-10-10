@@ -373,7 +373,7 @@ def mainRoutine(event=0,time=0,pref='大阪',StayTime =3600):
             location.append(spot.name)
             locationValue[spot.name] = spot.score
 
-    location = random.sample(location,3)
+    location = random.sample(location,2)
 
     # # ----------------------------------------------------------
     # #   i-jパスの設定
