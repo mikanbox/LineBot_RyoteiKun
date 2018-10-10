@@ -265,21 +265,21 @@ def sendFexMessage(event,place,time,pref):
                 contents=[
                     TextComponent( 
                         # text='↓\n↓   ' + str(int(time[i]/3600) ) +'h : ' + str(int(time[i]/60)%60 ) +'m \n↓',
-                        text='↓ move  ' + str(int(sumTravelTime[i]/3600) ) +'h : ' + str(int(sumTravelTime[i]/60)%60 ) + 'm  ~ '+ \
-                        str(int((sumTravelTime[i]+time[i])/3600) ) +'h : ' + str(int((sumTravelTime[i]+time[i])/60)%60 ) +'m',
+                        text='↓ move  ' + str(int(sumTravelTime/3600) ) +'h : ' + str(int(sumTravelTime/60)%60 ) + 'm  ~ '+ \
+                        str(int((sumTravelTime+time[i])/3600) ) +'h : ' + str(int((sumTravelTime+time[i])/60)%60 ) +'m',
                         color='#aaaaaa',size='sm',flex=1,wrap=True
                     ),
                 ]
             )
             contents.append(box)
-            sumTravelTime += time[i]
+            sumTravelTime += int(time[i])
 
 
     boxc = BoxComponent(
         layout='baseline',
         spacing='sm',
         contents=[
-            TextComponent( text='End  :'+ str(int(sumTravelTime[i]/3600) ) +'h : ' + str(int(sumTravelTime[i]/60)%60 ) + 'm ',color='#aaaaaa',size='sm')
+            TextComponent( text='End  :'+ str(int(sumTravelTime/3600) ) +'h : ' + str(int(sumTravelTime/60)%60 ) + 'm ',color='#aaaaaa',size='sm')
         ]
     )
     contents.append(boxc)
