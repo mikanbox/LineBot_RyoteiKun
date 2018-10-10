@@ -253,7 +253,7 @@ def sendFexMessage(event,place,time,pref,StayTime):
             spacing='sm',
             contents=[
                 TextComponent( text='Place',color='#aaaaaa',size='sm',flex=2),
-                IconComponent(url='https://linebot-ryotei-kun.herokuapp.com/static/icon.jpg',size='sm'),
+                IconComponent(url='https://linebot-ryotei-kun.herokuapp.com/static/icon.png',size='sm'),
                 TextComponent( text=place[i],wrap=True,color='#444444',size='sm',flex=8)
             ]
         )
