@@ -302,7 +302,7 @@ def sendFexMessage(event,place,time,pref,StayTime):
                 body=BoxComponent(
                     layout='vertical',
                     contents=[
-                        # title
+                        # titles
                         TextComponent(text= title , weight='bold', size='xl'),
                         # # info
                         BoxComponent(
@@ -311,10 +311,10 @@ def sendFexMessage(event,place,time,pref,StayTime):
                     ]
                 ),
                 styles = BubbleStyle(
-                    header = BlockStyle(separator = True,backgroundColor='#ddffff'),
-                    hero = BlockStyle(separator = True,backgroundColor='#ddffff'),
-                    body = BlockStyle(separator = True,backgroundColor='#ddffff'),
-                    footer = BlockStyle(separator = True,backgroundColor='#ddffff')
+                    header = BlockStyle(separator = True, backgroundColor='#bbffff'),
+                    hero = BlockStyle(separator = True, backgroundColor='#444444'),
+                    body = BlockStyle(separator = True, backgroundColor='#444444'),
+                    footer = BlockStyle(separator = True, backgroundColor='#bbffff')
                 )
             )
 
