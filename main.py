@@ -484,8 +484,6 @@ def handle_message(event):
         users = db.session.query(UserState).filter(UserState.user_id == user_id)
         for user in users:
             stateInstance = user
-            
-    print(stateInstance.state)
 
 
     print(APIkey.channel_secret)
@@ -515,7 +513,7 @@ def handle_message(event):
             stateInstance.state = 'listen_time_plan'
 
     if (stateInstance.state == 'listen_time_plan'):
-        if (getTime(text) != False):
+        if (getSumTime(text) != False):
             print("◆getTime")
             stateInstance.startTime,stateInstance.endTime = getSumTime(text)
             # stateInstance.startTime,stateInstance.endTime = getTime(text)

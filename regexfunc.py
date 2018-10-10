@@ -44,10 +44,10 @@ def getTime(text):
 # 何時間くらい?
 def getSumTime(text):
     tex = text.translate(tt_ksuji)
-    m = re.match('.*(?<!\d)(\d\d?)(?!\d)時間.*', tex)
+    m = re.match('.*(?<!\d)(\d\d?)(?!\d)時間.*(?<!\d)(\d\d?):(\d\d?)(?!\d)分.*', tex)
     if m:
         starttime =  "00:00"
-        endtime   =  m.group(1).zfill(2)+":00"
+        endtime   =  m.group(1).zfill(2)+":"+m.group(2).zfill(2)
         return starttime,endtime
 
     m = re.match('.*(?<!\d)(\d\d?):(\d\d?)(?!\d).*', text)
