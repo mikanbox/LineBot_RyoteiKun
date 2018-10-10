@@ -311,10 +311,10 @@ def sendFexMessage(event,place,time,pref,StayTime):
                     ]
                 ),
                 styles = BubbleStyle(
-                    header = BlockStyle(separator = True, backgroundColor='#bbffff'),
-                    hero = BlockStyle(separator = True, backgroundColor='#444444'),
-                    body = BlockStyle(separator = True, backgroundColor='#444444'),
-                    footer = BlockStyle(separator = True, backgroundColor='#bbffff')
+                    header = BlockStyle(backgroundColor='#bbffff'),
+                    hero = BlockStyle( backgroundColor='#444444'),
+                    body = BlockStyle( backgroundColor='#444444'),
+                    footer = BlockStyle( backgroundColor='#bbffff')
                 )
             )
 
