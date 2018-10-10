@@ -287,7 +287,7 @@ def sendFexMessage(event,place,time,pref,StayTime):
 
 
     headerImage = ImageComponent(# 画像ヘッダ
-                    url='./background.jpg',
+                    url='https://example.com/cafe.jpg',
                     size='full',
                     aspect_ratio='20:13',
                     aspect_mode='cover',
