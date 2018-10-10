@@ -379,6 +379,7 @@ def mainRoutine(event=0,time=0,pref='大阪',StayTime =3600):
             if (j.name not in location ):
                 continue
             if (j.name == i.name):
+                timeEdge[i.name,j.name] = 0
                 continue
 
             if (db.session.query(SpotDist).filter(SpotDist.id_from == i.id).filter(SpotDist.id_to == j.id).count() > 0 ):
