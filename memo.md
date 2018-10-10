@@ -9,8 +9,6 @@ URL
   - [heroku](https://linebot-ryotei-kun.herokuapp.com:443/callback)
   - [hgrok](ターミナルに出てくるやつ)
 
-
-
 ### herokuについて
 - dynoは30分以上トラフィックがないとsleepする
 
@@ -47,36 +45,22 @@ URL
 - 観光地リストの自動取得
   - google検索 おすすめスポット api
   - API利用:[公共クラウドシステム](https://www.chiikinogennki.soumu.go.jp/k-cloud-api/genre/137.html)
-  - 権利関係はちゃんと確認したほうがいい
-
 - ノード一つしかなかった場合の出力訂正
 - なんか1回じゃデータ送れていない時がある
   - データ送信のステップがおかしいのでちゃんと表示したほうがいいかも.....
-
-
-- 応答を修正
 - herokuには30秒のタイムアウトがある
 - 既存バグを全て修正
 - 正規表現追加
 - 内包表現の追加
 - ステートマシン追加? いらんくね？
-
 - 状態遷移の修正
 - ※定式化に修正が必要
 - flexSample実装 → 起動に成功
-
 - timeはテキストで処理
 - 複数回メッセージ飛ばしたら雑談
-
 - どうやらflaskでグローバル変数を持つより、メッセージにステートを添付したほうが良さげ
 
- 
 
 ### ngrokについて
 - ローカル環境をトンネリングしてグローバルIPを割り当て
-
-## 履歴
-- Heroku初デプロイ
-- heroku log に　error message "No web processes running"
-
 
