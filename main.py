@@ -553,7 +553,7 @@ def handle_message(event):
 
     if (getHelp(text)):
         print("◆GetHelp")
-        line_bot_api.reply_message(event.reply_token,TextSendMessage(text='ヘルプだよ!\n\n■旅行のプランを立ててもらいたい時\n1.「旅行」というワードを入れて話しかける\n2.行きたい県を入力\n3.始まりと終わりの時刻を入力\n4.おすすめのプランを提案してくれるよ \n■自分のお気に入りスポットを登録したい時\n1.「登録」というワードを入れて話しかける\n2.登録したいスポットの名前を入力\n■使い方がわからないとき...\n1.「Help」「ヘルプ」といったワードを入れて話しかける',wrap=True))
+        line_bot_api.reply_message(event.reply_token,TextSendMessage(text='ヘルプだよ!\n\n■旅行のプランを立ててもらいたい時\n1.「旅行」というワードを入れて話しかける\n2.行きたい県を入力\n3.始まりと終わりの時刻を入力\n4.おすすめのプランを提案してくれるよ \n■自分のお気に入りスポットを登録したい時\n1.「登録」というワードを入れて話しかける\n2.登録したいスポットの名前を入力\n■使い方がわからないとき...\n1.「Help」「ヘルプ」といったワードを入れて話しかける\n■操作をリセットしたいとき...\n「やめた」「やめる」といったワードをいれて話しかける',wrap=True))
         return 
 
     if (getSpot(text)):
